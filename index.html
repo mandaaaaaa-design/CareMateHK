@@ -1,0 +1,2163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CareMate (康伴) - Senior-Friendly Chronic Care</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', '"Noto Sans TC"', 'sans-serif'],
+          },
+          colors: {
+            /* Strict 3-Color System:
+               1. Primary Brand: #4F46E5 (Deep Indigo)
+               2. Soft Surface Tint: #EEF2FF (Soft Lavender Mist)
+               3. Semantic Alert Accent: #E11D48 (Coral Rose)
+            */
+            brand: {
+              50: '#EEF2FF',
+              100: '#E0E7FF',
+              200: '#C7D2FE',
+              500: '#6366F1',
+              600: '#4F46E5',
+              700: '#4338CA',
+            },
+            alert: {
+              50: '#FFF1F2',
+              100: '#FFE4E6',
+              200: '#FECDD3',
+              600: '#E11D48',
+              700: '#BE123C',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: #EEF2FF; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb { background: #C7D2FE; border-radius: 4px; }
+    .custom-shadow { box-shadow: 0 8px 20px -4px rgba(15, 23, 42, 0.05), 0 4px 8px -4px rgba(15, 23, 42, 0.02); }
+
+    /* Unified interactive states: one hover/active language for every clickable control */
+    button, [role="button"], label.cursor-pointer, div.cursor-pointer {
+      transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+    }
+    button:active, [role="button"]:active, label.cursor-pointer:active, div.cursor-pointer:active { transform: scale(0.97); }
+    button:focus-visible, [role="button"]:focus-visible, label.cursor-pointer:focus-within { outline: 2px solid #4F46E5; outline-offset: 2px; }
+
+    /* Filled controls darken one step; soft/outlined controls lift to brand-100 */
+    button.bg-brand-600:hover { background-color: #4338CA; }
+    button.bg-slate-900:hover { background-color: #1E293B; }
+    button.bg-alert-600:hover { background-color: #BE123C; }
+    button.bg-brand-50:hover,
+    button.bg-white:hover,
+    label.cursor-pointer.rounded-xl:hover,
+    div.cursor-pointer:hover { background-color: #E0E7FF; }
+    button.bg-alert-50:hover, label.cursor-pointer.bg-alert-50:hover { background-color: #FFE4E6; }
+
+    /* State-aware controls: calendar days, symptom chips, moods, bottom nav */
+    .cal-day-btn, .sym-chip, .daily-mood-btn, .nav-btn { transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease, transform 150ms ease; }
+    .cal-day-btn:hover, .sym-chip:hover { background-color: #E0E7FF; color: #4338CA; }
+    .cal-day-btn.bg-alert-100:hover { background-color: #FFE4E6; color: #BE123C; }
+    .cal-day-btn.bg-brand-600:hover, .sym-chip.bg-brand-600:hover { background-color: #4338CA; color: #FFFFFF; }
+    .daily-mood-btn:hover { background-color: #E0E7FF; }
+    .daily-mood-btn.bg-white:hover { background-color: #E0E7FF; }
+    .nav-btn:hover { color: #4338CA; background-color: #E0E7FF; }
+    .cal-day-btn:active, .sym-chip:active, .daily-mood-btn:active, .nav-btn:active { transform: scale(0.96); }
+
+    /* Health-condition chips follow the same hover/active language */
+    .condition-chip { transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease, transform 150ms ease; }
+    .condition-chip:hover { background-color: #E0E7FF; color: #4338CA; }
+    .condition-chip.bg-brand-600:hover { background-color: #4338CA; color: #FFFFFF; }
+    .condition-chip:active { transform: scale(0.96); }
+    .pulse-mic { animation: pulseRing 2s infinite; }
+    @keyframes pulseRing {
+      0% { transform: scale(0.97); box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.45); }
+      70% { transform: scale(1.03); box-shadow: 0 0 0 10px rgba(79, 70, 229, 0); }
+      100% { transform: scale(0.97); box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); }
+    }
+  </style>
+</head>
+<body class="bg-slate-900 min-h-screen flex items-center justify-center p-0 sm:p-4 font-sans text-slate-900 antialiased select-none">
+
+  <!-- Mobile App Frame Container -->
+  <div class="w-full max-w-md bg-brand-50 sm:rounded-[40px] shadow-2xl overflow-hidden border-0 sm:border-8 border-slate-800 relative flex flex-col h-screen sm:h-[844px]">
+    
+    <!-- Status Bar Header -->
+    <div class="bg-white pt-3 px-6 pb-2 flex justify-between items-center text-xs font-semibold text-slate-900 select-none z-20 shrink-0 border-b border-brand-100">
+      <span>09:41</span>
+      <div class="w-20 h-4 bg-slate-900 rounded-full hidden sm:block"></div>
+      <div class="flex items-center space-x-2 text-slate-900">
+        <i class="fa-solid fa-signal text-[11px]"></i>
+        <i class="fa-solid fa-wifi text-[11px]"></i>
+        <i class="fa-solid fa-battery-full text-xs"></i>
+      </div>
+    </div>
+
+    <!-- ==================== 1. TOP HEADER BAR ==================== -->
+    <header class="bg-white px-4 py-3 flex justify-between items-center border-b border-brand-100 shrink-0 z-20">
+      <div class="flex items-center space-x-2.5 cursor-pointer hover:bg-brand-100 rounded-lg transition" onclick="switchTab('home')">
+        <div class="w-9 h-9 rounded-xl bg-brand-600 text-white flex items-center justify-center shadow-sm shrink-0">
+          <i class="fa-solid fa-heart-pulse text-base"></i>
+        </div>
+        <div>
+          <span class="font-extrabold text-base text-slate-900 tracking-tight block leading-tight" data-i18n="appName">CareMate</span>
+          <span class="text-xs text-slate-500 font-medium" data-i18n="welcomeUser">Welcome, Ms. Chan</span>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-2">
+        <!-- Quick Language Toggle Pill -->
+        <button onclick="toggleLanguage()" class="px-2.5 py-1.5 rounded-full bg-brand-50 hover:bg-brand-100 text-slate-900 font-bold text-xs border border-brand-200 transition flex items-center gap-1.5">
+          <i class="fa-solid fa-globe text-brand-600 text-xs"></i>
+          <span id="langBadgeText">EN / 繁中</span>
+        </button>
+
+        <!-- Profile Button -->
+        <button onclick="switchTab('profile')" id="top-profile-btn" class="flex items-center space-x-1.5 bg-brand-50 hover:bg-brand-100 text-brand-700 px-3 py-1.5 rounded-full border border-brand-200 transition">
+          <div class="w-5 h-5 rounded-full bg-brand-600 text-white flex items-center justify-center text-[11px] font-bold">C</div>
+          <span class="text-xs font-bold" data-i18n="profileShort">Profile</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- MAIN DYNAMIC CONTENT CONTAINER -->
+    <div class="flex-1 overflow-y-auto pb-28">
+      
+      <!-- ==================== 2. HOME TAB ==================== -->
+      <div id="page-home" class="tab-page space-y-4 px-4 pt-4">
+        
+        <!-- CARD 1: November 2026 Interactive Calendar -->
+        <section class="bg-white p-4 rounded-2xl border border-brand-100 custom-shadow">
+          <div class="flex justify-between items-center mb-3">
+            <div class="flex items-center space-x-2">
+              <h1 class="text-xl font-extrabold text-slate-900 tracking-tight" data-i18n="monthTitle">November</h1>
+              <span class="text-xs px-2.5 py-0.5 bg-brand-50 text-brand-600 font-bold rounded-full border border-brand-100">2026</span>
+            </div>
+            <button onclick="toggleCalendarView()" class="text-xs text-brand-600 font-bold flex items-center gap-1.5 bg-brand-50 px-3 py-1.5 rounded-full hover:bg-brand-100 transition border border-brand-100">
+              <span id="calendarToggleText" data-i18n="calExpand">Month View</span>
+              <i id="calendarToggleIcon" class="fa-solid fa-chevron-down text-[10px]"></i>
+            </button>
+          </div>
+
+          <div class="grid grid-cols-7 gap-1 text-center text-xs font-bold text-slate-400 mb-2" id="weekDaysRow">
+            <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+          </div>
+
+          <!-- November 2026 — one continuous month grid. 7-day preview shows the current week; expanding reveals the rest of the month in place. -->
+          <div id="calendarGrid" class="space-y-1 text-center text-sm font-semibold">
+            <div class="cal-week grid grid-cols-7 gap-1 hidden">
+              <button onclick="selectCalendarDate(1)" data-day="1" class="cal-day-btn h-9 w-9 mx-auto flex items-center justify-center rounded-full text-slate-700 transition">1</button>
+              <button onclick="selectCalendarDate(2)" data-day="2" class="cal-day-btn h-9 w-9 mx-auto flex items-center justify-center rounded-full text-slate-700 transition">2</button>
+              <button onclick="selectCalendarDate(3)" data-day="3" class="cal-day-btn h-9 w-9 mx-auto flex items-center justify-center rounded-full text-slate-700 transition">3</button>
+              <button onclick="selectCalendarDate(4)" data-day="4" class="cal-day-btn h-9 w-9 mx-auto flex items-center justify-center rounded-full text-slate-700 transition">4</button>
+              <button onclick="selectCalendarDate(5)" data-day="5" class="cal-day-btn h-9 w-9 mx-auto flex items-center justify-center rounded-full text-slate-700 transition">5</button>
+              <button onclick="selectCalendarDate(6)" data-day="6" class="cal-day-btn h-9 w-9 mx-auto flex items-center justify-center rounded-full text-slate-700 transition">6</button>
+              <button onclick="selectCalendarDate(7)" data-day="7" class="cal-day-btn h-9 w-9 mx-auto flex items-center justify-center rounded-full text-slate-700 transition">7</button>
+            </div>
+            <div class="cal-week grid grid-cols-7 gap-1 hidden">
+              <button onclick="selectCalendarDate(8)" data-day="8" class="cal-day-btn h-9 w-9 mx-auto flex items-center justify-center rounded-full text-slate-700 transition">8</button>
+              <button onclick="selectCalendarDate(9)" data-day="9" class="cal-day-btn h-9 w-9 mx-auto flex items-center justify-center rounded-full text-slate-700 transition">9</button>
+              <button onclick="selectCalendarDate(10)" data-day="10" class="cal-day-btn h-9 w-9 mx-auto flex items-center justify-center rounded-full text-slate-700 transition">10</button>
+              <button onclick="selectCalendarDate(11)" data-day="11" class="cal-day-btn h-9 w-9 mx-auto flex items-center justify-center rounded-full text-slate-700 transition">11</button>
+              <button onclick="selectCalendarDate(12)" data-day="12" class="cal-day-btn h-9 w-9 mx-auto flex items-center justify-center rounded-full text-slate-700 transition">12</button>
+              <button onclick="selectCalendarDate(13)" data-day="13" class="cal-day-btn h-9 w-9 mx-auto flex items-center justify-center rounded-full text-slate-700 transition">13</button>
+              <button onclick="selectCalendarDate(14)" data-day="14" class="cal-day-btn h-9 w-9 mx-auto flex items-center justify-center rounded-full bg-alert-100 text-alert-600 font-extrabold transition">14</button>
+            </div>
+            <div class="cal-week grid grid-cols-7 gap-1" data-preview-week>
+              <button onclick="selectCalendarDate(15)" data-day="15" class="cal-day-btn h-9 w-9 mx-auto flex items-center justify-center rounded-full text-slate-800 transition">15</button>
+              <button onclick="selectCalendarDate(16)" data-day="16" class="cal-day-btn h-9 w-9 mx-auto flex items-center justify-center rounded-full bg-alert-100 text-alert-600 font-extrabold transition">16</button>
+              <button onclick="selectCalendarDate(17)" data-day="17" class="cal-day-btn h-9 w-9 mx-auto flex items-center justify-center rounded-full text-slate-800 transition">17</button>
+              <button onclick="selectCalendarDate(18)" data-day="18" class="cal-day-btn h-9 w-9 mx-auto flex items-center justify-center rounded-full bg-brand-600 text-white font-extrabold shadow-sm transition">18</button>
+              <button onclick="selectCalendarDate(19)" data-day="19" class="cal-day-btn h-9 w-9 mx-auto flex items-center justify-center rounded-full text-slate-800 transition">19</button>
+              <button onclick="selectCalendarDate(20)" data-day="20" class="cal-day-btn h-9 w-9 mx-auto flex items-center justify-center rounded-full text-slate-800 transition">20</button>
+              <button onclick="selectCalendarDate(21)" data-day="21" class="cal-day-btn h-9 w-9 mx-auto flex items-center justify-center rounded-full text-slate-800 transition">21</button>
+            </div>
+            <div class="cal-week grid grid-cols-7 gap-1 hidden">
+              <button onclick="selectCalendarDate(22)" data-day="22" class="cal-day-btn h-9 w-9 mx-auto flex items-center justify-center rounded-full text-slate-700 transition">22</button>
+              <button onclick="selectCalendarDate(23)" data-day="23" class="cal-day-btn h-9 w-9 mx-auto flex items-center justify-center rounded-full text-slate-700 transition">23</button>
+              <button onclick="selectCalendarDate(24)" data-day="24" class="cal-day-btn h-9 w-9 mx-auto flex items-center justify-center rounded-full text-slate-700 transition">24</button>
+              <button onclick="selectCalendarDate(25)" data-day="25" class="cal-day-btn h-9 w-9 mx-auto flex items-center justify-center rounded-full text-slate-700 transition">25</button>
+              <button onclick="selectCalendarDate(26)" data-day="26" class="cal-day-btn h-9 w-9 mx-auto flex items-center justify-center rounded-full text-slate-700 transition">26</button>
+              <button onclick="selectCalendarDate(27)" data-day="27" class="cal-day-btn h-9 w-9 mx-auto flex items-center justify-center rounded-full text-slate-700 transition">27</button>
+              <button onclick="selectCalendarDate(28)" data-day="28" class="cal-day-btn h-9 w-9 mx-auto flex items-center justify-center rounded-full text-slate-700 transition">28</button>
+            </div>
+            <div class="cal-week grid grid-cols-7 gap-1 hidden">
+              <button onclick="selectCalendarDate(29)" data-day="29" class="cal-day-btn h-9 w-9 mx-auto flex items-center justify-center rounded-full text-slate-700 transition">29</button>
+              <button onclick="selectCalendarDate(30)" data-day="30" class="cal-day-btn h-9 w-9 mx-auto flex items-center justify-center rounded-full text-slate-700 transition">30</button>
+              <span></span><span></span><span></span><span></span><span></span>
+            </div>
+          </div>
+
+          <div class="mt-3 pt-2.5 border-t border-brand-100 flex items-center justify-between text-[11px] text-slate-500 font-medium">
+            <div class="flex items-center space-x-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-alert-600 inline-block"></span>
+              <span data-i18n="calLegend">Health Score &lt; 70 (Tap past dates to inspect)</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- CARD 2 (STANDALONE CARD): Today's Tasks -->
+        <section class="bg-white border border-brand-100 rounded-2xl p-4 custom-shadow">
+          <div class="flex justify-between items-center mb-3.5">
+            <div class="flex items-center space-x-2">
+              <h2 class="text-lg font-extrabold text-slate-900 tracking-tight" data-i18n="todayTasks">Today's Tasks</h2>
+              <span id="taskProgressBadge" class="text-xs bg-brand-50 text-brand-700 font-bold px-2.5 py-0.5 rounded-full border border-brand-100" data-i18n="taskProgress">1/2 Done</span>
+            </div>
+            <button onclick="addNewQuickTask()" class="w-8 h-8 rounded-full bg-brand-600 text-white flex items-center justify-center shadow-sm hover:bg-brand-700 transition">
+              <i class="fa-solid fa-plus text-sm"></i>
+            </button>
+          </div>
+
+          <div id="taskList" class="space-y-2.5">
+            <div class="task-item bg-brand-50/70 rounded-xl border border-brand-100 overflow-hidden transition">
+              <div class="p-3 flex items-center justify-between cursor-pointer hover:bg-brand-100 transition" onclick="toggleTaskExpand('task-detail-1', 'task-arrow-1')">
+                <label class="flex items-center space-x-3 cursor-pointer flex-1" onclick="event.stopPropagation()">
+                  <input type="checkbox" checked onchange="toggleTask(this)" class="w-5 h-5 rounded border-brand-200 text-brand-600 accent-brand-600 cursor-pointer">
+                  <span class="text-sm font-semibold text-slate-900 line-through opacity-60 task-text" data-i18n="task1Title">Measure Blood Pressure (09:00)</span>
+                </label>
+                <div class="flex items-center space-x-2">
+                  <span class="text-xs font-bold text-brand-700 bg-white px-2.5 py-1 rounded-lg border border-brand-100">09:00</span>
+                  <i id="task-arrow-1" class="fa-solid fa-chevron-down text-slate-500 text-xs transition-transform duration-200"></i>
+                </div>
+              </div>
+              <div id="task-detail-1" class="hidden px-4 pb-3 pt-2 border-t border-brand-100 bg-white text-xs space-y-1 text-slate-700">
+                <p><span class="font-bold text-slate-900" data-i18n="noteLbl">Note:</span> <span data-i18n="task1Note">Rest quietly for 5 mins before measuring.</span></p>
+                <p><span class="font-bold text-slate-900" data-i18n="targetLbl">Target:</span> &lt; 135 / 85 mmHg</p>
+              </div>
+            </div>
+
+            <div class="task-item bg-brand-50/70 rounded-xl border border-brand-100 overflow-hidden transition">
+              <div class="p-3 flex items-center justify-between cursor-pointer hover:bg-brand-100 transition" onclick="toggleTaskExpand('task-detail-2', 'task-arrow-2')">
+                <label class="flex items-center space-x-3 cursor-pointer flex-1" onclick="event.stopPropagation()">
+                  <input type="checkbox" onchange="toggleTask(this)" class="w-5 h-5 rounded border-brand-200 text-brand-600 accent-brand-600 cursor-pointer">
+                  <span class="text-sm font-semibold text-slate-900 task-text" data-i18n="task2Title">Take Medication (12:00)</span>
+                </label>
+                <div class="flex items-center space-x-2">
+                  <span class="text-xs font-bold text-brand-700 bg-white px-2.5 py-1 rounded-lg border border-brand-100">12:00</span>
+                  <i id="task-arrow-2" class="fa-solid fa-chevron-down text-slate-500 text-xs transition-transform duration-200"></i>
+                </div>
+              </div>
+              <div id="task-detail-2" class="hidden px-4 pb-3 pt-2 border-t border-brand-100 bg-white text-xs space-y-1 text-slate-700">
+                <p><span class="font-bold text-slate-900" data-i18n="medLbl">Medication:</span> Amlodipine 5mg (1 tablet)</p>
+                <p><span class="font-bold text-slate-900" data-i18n="instLbl">Instruction:</span> <span data-i18n="task2Note">Take after lunch with warm water. Avoid grapefruit.</span></p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ROW 3 (SEPARATE 2-COLUMN GRID OF STANDALONE WHITE CARDS) -->
+        <div class="grid grid-cols-2 gap-3">
+          
+          <!-- Left Card: Today's Vitals (or Selected Past Date Vitals) -->
+          <div onclick="switchTab('health', 'log')" class="bg-white p-4 rounded-2xl border border-brand-100 custom-shadow cursor-pointer hover:border-brand-600 transition group flex flex-col justify-between">
+            <div>
+              <div class="flex justify-between items-start gap-1 mb-2">
+                <h3 class="text-base font-extrabold text-slate-900 leading-snug flex items-center gap-1.5 group-hover:text-brand-700 transition">
+                  <i class="fa-solid fa-heart-pulse text-brand-600 shrink-0"></i>
+                  <span id="vitalsCardTitle" data-i18n="todayVitals">Today's Vitals</span>
+                </h3>
+              </div>
+
+              <!-- Daily Health Score Badge -->
+              <div id="vitalsScoreBadge" class="mb-2.5 inline-block text-[11px] font-extrabold text-brand-700 bg-brand-50 border border-brand-200 px-2.5 py-1 rounded-full">
+                Score: 92/100 · Good
+              </div>
+
+              <div class="space-y-2 text-xs">
+                <div class="bg-brand-50 p-2.5 rounded-xl border border-brand-100">
+                  <span class="text-slate-500 text-[11px] font-medium block" data-i18n="bpLbl">Blood Pressure:</span>
+                  <span class="font-extrabold text-slate-900 text-sm" id="homeBpDisplay">124 / 80 mmHg</span>
+                </div>
+                <div class="bg-brand-50 p-2.5 rounded-xl border border-brand-100">
+                  <span class="text-slate-500 text-[11px] font-medium block" data-i18n="symptomLbl">Symptoms:</span>
+                  <span class="font-bold text-brand-700 text-xs" id="homeSymptomDisplay" data-i18n="noDiscomfort">Feeling Good 😊</span>
+                </div>
+              </div>
+            </div>
+
+            <p class="text-xs text-brand-600 font-extrabold text-right mt-3 group-hover:text-brand-700 transition self-end" data-i18n="logDetails">
+              Log Vitals &rarr;
+            </p>
+          </div>
+
+          <!-- Right Card: Family Care -->
+          <div onclick="switchTab('family')" class="bg-white p-4 rounded-2xl border border-brand-100 custom-shadow cursor-pointer hover:border-brand-600 transition group flex flex-col justify-between">
+            <div>
+              <div class="flex justify-between items-start mb-2.5">
+                <h3 class="text-base font-extrabold text-slate-900 group-hover:text-alert-600 transition leading-snug flex items-center gap-1.5">
+                  <i class="fa-solid fa-user-group text-brand-600 shrink-0"></i>
+                  <span data-i18n="familyCareCard">Family Care</span>
+                </h3>
+                <span class="w-2.5 h-2.5 rounded-full bg-alert-600 shrink-0 mt-1.5"></span>
+              </div>
+              <div class="space-y-2 text-xs">
+                <div class="bg-alert-50 p-2.5 rounded-xl border border-alert-200">
+                  <span class="text-alert-700 font-extrabold block text-[11px]" data-i18n="momAlertTitle">⚠️ Mom BP Alert</span>
+                  <span class="text-slate-900 text-sm font-extrabold">145 / 92 mmHg</span>
+                </div>
+                <div class="bg-brand-50 p-2.5 rounded-xl border border-brand-100">
+                  <span class="text-brand-700 font-bold text-xs block" data-i18n="dadStatus">Dad: Meds Taken ✓</span>
+                </div>
+              </div>
+            </div>
+            <p class="text-xs text-alert-600 font-extrabold text-right mt-3" data-i18n="viewFamily">Open Sharing &rarr;</p>
+          </div>
+
+        </div>
+
+        <!-- CARD 4 (STANDALONE CARD): Collapsible Medication & Insulin Tracker -->
+        <section class="bg-white rounded-2xl border border-brand-100 custom-shadow overflow-hidden transition-all">
+          <div onclick="toggleMedTracking()" class="p-4 flex justify-between items-center cursor-pointer hover:bg-brand-100 transition">
+            <div class="flex items-center space-x-2 flex-wrap gap-y-1">
+              <i class="fa-solid fa-pills text-brand-600 text-base"></i>
+              <h3 class="text-base font-extrabold text-slate-900 tracking-tight" data-i18n="medTrackingTitle">Medication & Insulin</h3>
+              <span class="text-xs font-extrabold text-alert-700 bg-alert-50 border border-alert-200 px-2.5 py-0.5 rounded-full" data-i18n="medLowAlert">⚠️ 6 Days Left</span>
+            </div>
+            <i id="medArrow" class="fa-solid fa-chevron-down text-slate-500 text-xs transition-transform duration-200"></i>
+          </div>
+
+          <div id="medContent" class="hidden px-4 pb-4 pt-2 border-t border-brand-100 space-y-3">
+            <div class="space-y-2 text-xs">
+              <label class="flex items-center justify-between bg-alert-50 border border-alert-200 p-3 rounded-xl cursor-pointer">
+                <div class="flex items-center space-x-2.5">
+                  <input type="checkbox" checked onchange="showToast('Dose status updated')" class="w-4 h-4 accent-brand-600 rounded">
+                  <div>
+                    <span class="font-extrabold text-slate-900 block" data-i18n="medAmlodipine">Amlodipine 5mg (BP)</span>
+                    <span class="text-[11px] text-slate-600" data-i18n="medAmloSub">1 tablet · Morning after breakfast</span>
+                  </div>
+                </div>
+                <span class="text-[11px] font-extrabold text-alert-700 bg-white border border-alert-200 px-2 py-0.5 rounded-lg" data-i18n="daysLeft6">⚠️ 6d left</span>
+              </label>
+
+              <label class="flex items-center justify-between bg-brand-50 border border-brand-100 p-3 rounded-xl cursor-pointer">
+                <div class="flex items-center space-x-2.5">
+                  <input type="checkbox" onchange="showToast('Dose status updated')" class="w-4 h-4 accent-brand-600 rounded">
+                  <div>
+                    <span class="font-extrabold text-slate-900 block" data-i18n="medMetformin">Metformin 500mg (Glucose)</span>
+                    <span class="text-[11px] text-slate-600" data-i18n="medMetSub">1 tablet · Evening with dinner</span>
+                  </div>
+                </div>
+                <span class="text-[11px] font-bold text-brand-700 bg-white border border-brand-200 px-2 py-0.5 rounded-lg" data-i18n="daysLeft18">18d left</span>
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <!-- CARD 5 (STANDALONE CARD): AI Weekly Summary + Export Clinical Report -->
+        <section class="bg-white border-2 border-brand-200 p-4 rounded-2xl custom-shadow flex items-start justify-between gap-3">
+          <div class="flex items-start space-x-3 min-w-0">
+            <div class="w-11 h-11 rounded-2xl bg-brand-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+              <i class="fa-solid fa-wand-magic-sparkles text-base"></i>
+            </div>
+            <div>
+              <h4 class="text-base font-extrabold text-slate-900 leading-tight" data-i18n="aiWeeklyTitle">AI Weekly Summary</h4>
+              <p class="text-xs text-slate-600 font-medium mt-0.5" data-i18n="aiWeeklySub">92% adherence · 3 morning BP spikes noted</p>
+            </div>
+          </div>
+          <button onclick="openDoctorSummaryModal()" class="text-xs font-extrabold bg-brand-600 text-white px-3 py-2.5 rounded-xl hover:bg-brand-700 transition shrink-0 self-start shadow-sm" data-i18n="previewDocBtn">
+            Export Clinical Report
+          </button>
+        </section>
+      </div>
+
+      <!-- ==================== 3. HEALTH TAB (DAILY LOG + TRENDS & AI) ==================== -->
+      <div id="page-health" class="tab-page hidden space-y-4 px-4 pt-4">
+        
+        <!-- Top Segmented Switcher -->
+        <div class="bg-white border border-brand-100 p-1 rounded-2xl grid grid-cols-2 gap-1 shadow-sm">
+          <button onclick="switchHealthSubTab('log')" id="subtab-health-log" class="py-2.5 rounded-xl text-xs font-extrabold bg-brand-600 text-white shadow-sm hover:bg-brand-700 transition flex items-center justify-center gap-1.5">
+            <i class="fa-solid fa-notes-medical"></i> <span data-i18n="subDailyLog">Daily Log</span>
+          </button>
+          <button onclick="switchHealthSubTab('trends')" id="subtab-health-trends" class="py-2.5 rounded-xl text-xs font-bold text-slate-700 hover:bg-brand-100 transition flex items-center justify-center gap-1.5">
+            <i class="fa-solid fa-chart-line"></i> <span data-i18n="subAiTrends">Trends & AI</span>
+          </button>
+        </div>
+
+        <!-- SUB-TAB 1: SINGLE-SCROLL DAILY LOG (NO STEP 1 / STEP 2 SPLIT!) -->
+        <div id="health-view-log" class="space-y-4 pb-4">
+          
+          <!-- Top Banner: Sync Device / App (Xiaomi Watch / Mi Fitness) -->
+          <div class="bg-white p-4 rounded-2xl border border-brand-200 custom-shadow flex items-start justify-between gap-3">
+            <div class="flex items-start space-x-3 min-w-0">
+              <div class="w-10 h-10 rounded-xl bg-brand-50 border border-brand-200 text-brand-600 flex items-center justify-center shrink-0">
+                <i class="fa-solid fa-stopwatch text-lg"></i>
+              </div>
+              <div>
+                <div class="flex items-center gap-1.5">
+                  <h3 class="text-sm font-extrabold text-slate-900" data-i18n="syncBannerTitle">Sync Device / App</h3>
+                  <span id="wearableSyncBadge" class="hidden text-[10px] font-bold text-brand-700 bg-brand-50 border border-brand-200 px-2 py-0.5 rounded-full" data-i18n="syncedBadge">Synced ✓</span>
+                </div>
+                <p id="wearableSyncSub" class="text-[11px] text-slate-500 mt-0.5" data-i18n="syncBannerSub">Auto-fill BP, Glucose & HR from Mi Fitness</p>
+              </div>
+            </div>
+            <button type="button" onclick="syncFromWearable()" class="bg-brand-600 hover:bg-brand-700 text-white text-xs font-extrabold px-3 py-2.5 rounded-xl shadow-sm transition shrink-0 self-start flex items-center gap-1.5">
+              <i class="fa-solid fa-rotate"></i>
+              <span data-i18n="syncXiaomiBtn">Sync Xiaomi Watch (Mi Fitness)</span>
+            </button>
+          </div>
+
+          <!-- PRIORITY SECTION 1: Physical Vitals & Symptoms FIRST -->
+          <div class="bg-white p-4 rounded-2xl border border-brand-100 custom-shadow space-y-4">
+            <div class="flex justify-between items-center border-b border-brand-100 pb-2.5">
+              <h2 class="text-base font-extrabold text-slate-900 flex items-center gap-2">
+                <i class="fa-solid fa-heart-pulse text-brand-600"></i>
+                <span data-i18n="sec1VitalsTitle">1. Physical Vitals & Symptoms</span>
+              </h2>
+              <span class="text-[11px] font-bold text-brand-700 bg-brand-50 px-2.5 py-0.5 rounded-full" data-i18n="priorityBadge">Priority</span>
+            </div>
+
+            <!-- BP, Glucose, Heart Rate Inputs -->
+            <div class="space-y-3">
+              <div>
+                <label class="block text-xs font-bold text-slate-800 mb-1.5" data-i18n="bpInputLbl">Blood Pressure — Systolic / Diastolic (mmHg)</label>
+                <div class="flex items-center gap-2">
+                  <input type="number" id="inputSystolic" placeholder="124" class="w-full border-2 border-brand-100 rounded-xl p-2.5 text-base text-center font-extrabold text-slate-900 focus:border-brand-600 focus:outline-none transition">
+                  <span class="font-extrabold text-slate-400 text-lg">/</span>
+                  <input type="number" id="inputDiastolic" placeholder="80" class="w-full border-2 border-brand-100 rounded-xl p-2.5 text-base text-center font-extrabold text-slate-900 focus:border-brand-600 focus:outline-none transition">
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-bold text-slate-800 mb-1.5" data-i18n="glucoseInputLbl">Blood Glucose (mmol/L)</label>
+                  <input type="number" id="inputSugar" step="0.1" placeholder="5.8" class="w-full border-2 border-brand-100 rounded-xl p-2.5 text-base text-center font-extrabold text-slate-900 focus:border-brand-600 focus:outline-none transition">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-800 mb-1.5" data-i18n="hrInputLbl">Heart Rate (bpm)</label>
+                  <input type="number" id="inputHr" placeholder="72" class="w-full border-2 border-brand-100 rounded-xl p-2.5 text-base text-center font-extrabold text-slate-900 focus:border-brand-600 focus:outline-none transition">
+                </div>
+              </div>
+            </div>
+
+            <!-- Multi-select Hypertension Symptom Chips -->
+            <div class="pt-3 border-t border-brand-100 space-y-2.5">
+              <label class="block text-xs font-extrabold text-slate-900" data-i18n="symChipsTitle">Hypertension & Body Symptoms (Multi-select)</label>
+              <div class="flex flex-wrap gap-2" id="symptomChipsContainer">
+                <button type="button" onclick="toggleSymptomChip(this, 'Headache')" class="sym-chip text-xs font-bold px-3.5 py-2 rounded-xl border border-brand-200 bg-brand-50/70 text-slate-900 transition" data-i18n="symHeadache">Headache</button>
+                <button type="button" onclick="toggleSymptomChip(this, 'Dizziness')" class="sym-chip text-xs font-bold px-3.5 py-2 rounded-xl border border-brand-200 bg-brand-50/70 text-slate-900 transition" data-i18n="symDizziness">Dizziness</button>
+                <button type="button" onclick="toggleSymptomChip(this, 'Chest Tightness')" class="sym-chip text-xs font-bold px-3.5 py-2 rounded-xl border border-brand-200 bg-brand-50/70 text-slate-900 transition" data-i18n="symChest">Chest Tightness</button>
+                <button type="button" onclick="toggleSymptomChip(this, 'Fatigue')" class="sym-chip text-xs font-bold px-3.5 py-2 rounded-xl border border-brand-200 bg-brand-50/70 text-slate-900 transition" data-i18n="symFatigue">Fatigue</button>
+                <button type="button" onclick="toggleSymptomChip(this, 'None')" class="sym-chip active-chip text-xs font-extrabold px-3.5 py-2 rounded-xl border border-brand-600 bg-brand-600 text-white transition" data-i18n="symNone">None ✓</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- PRIORITY SECTION 2: Today's Mood SECOND -->
+          <div class="bg-white p-4 rounded-2xl border border-brand-100 custom-shadow space-y-3">
+            <h2 class="text-base font-extrabold text-slate-900 flex items-center gap-2">
+              <i class="fa-solid fa-face-smile text-brand-600"></i>
+              <span data-i18n="sec2MoodTitle">2. Today's Mood</span>
+            </h2>
+
+            <div class="grid grid-cols-5 gap-1.5 bg-brand-50 p-2 rounded-2xl border border-brand-100">
+              <button type="button" onclick="selectDailyMood(this, '😁', 'Great')" class="daily-mood-btn flex flex-col items-center py-2 rounded-xl transition">
+                <span class="text-2xl">😁</span>
+                <span class="text-[11px] font-bold text-slate-700 mt-1" data-i18n="moodGreat">Great</span>
+              </button>
+              <button type="button" onclick="selectDailyMood(this, '🙂', 'Good')" class="daily-mood-btn flex flex-col items-center py-2 rounded-xl bg-white ring-2 ring-brand-600 shadow-sm transition">
+                <span class="text-2xl">🙂</span>
+                <span class="text-[11px] font-extrabold text-brand-700 mt-1" data-i18n="moodGood">Good</span>
+              </button>
+              <button type="button" onclick="selectDailyMood(this, '😐', 'Okay')" class="daily-mood-btn flex flex-col items-center py-2 rounded-xl transition">
+                <span class="text-2xl">😐</span>
+                <span class="text-[11px] font-bold text-slate-700 mt-1" data-i18n="moodOkay">Okay</span>
+              </button>
+              <button type="button" onclick="selectDailyMood(this, '☹️', 'Low')" class="daily-mood-btn flex flex-col items-center py-2 rounded-xl transition">
+                <span class="text-2xl">☹️</span>
+                <span class="text-[11px] font-bold text-slate-700 mt-1" data-i18n="moodLowShort">Low</span>
+              </button>
+              <button type="button" onclick="selectDailyMood(this, '😫', 'Unwell')" class="daily-mood-btn flex flex-col items-center py-2 rounded-xl transition">
+                <span class="text-2xl">😫</span>
+                <span class="text-[11px] font-bold text-slate-700 mt-1" data-i18n="moodUnwell">Unwell</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Bottom Action Row: Dual Buttons -->
+          <div class="grid grid-cols-2 gap-3 pt-1">
+            <button type="button" onclick="openAiChatModal('AI Daily Log Summary')" class="bg-white border-2 border-brand-600 text-brand-700 hover:bg-brand-100 font-extrabold py-3.5 px-3 rounded-2xl text-xs flex items-center justify-center gap-1.5 shadow-sm transition">
+              <i class="fa-solid fa-microphone-lines"></i>
+              <span data-i18n="btnAskAiSummary">Ask AI Summary</span>
+            </button>
+            <button type="button" onclick="saveDailyLog()" class="bg-brand-600 hover:bg-brand-700 text-white font-extrabold py-3.5 px-3 rounded-2xl text-xs flex items-center justify-center gap-1.5 shadow-md transition">
+              <i class="fa-solid fa-check-circle"></i>
+              <span data-i18n="btnSaveTodaysLog">Save Today's Log</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- SUB-TAB 2: TRENDS & AI -->
+        <div id="health-view-trends" class="space-y-4 hidden pb-4">
+          <div class="bg-white p-4 rounded-2xl border border-brand-200 custom-shadow">
+            <div class="flex items-start space-x-3">
+              <div class="w-10 h-10 rounded-full bg-brand-50 text-brand-600 border border-brand-200 flex items-center justify-center shrink-0">
+                <i class="fa-solid fa-wand-magic-sparkles text-base"></i>
+              </div>
+              <div class="flex-1">
+                <p class="text-xs text-slate-900 font-semibold leading-relaxed" data-i18n="aiInsightQuote">
+                  "Over the past week, 3 morning systolic spikes (>135 mmHg) correlated with mild dizziness. Evening readings remain stable."
+                </p>
+                <div class="flex justify-end mt-2.5 gap-2">
+                  <button onclick="openDoctorSummaryModal()" class="text-xs font-bold text-brand-700 bg-brand-50 border border-brand-200 px-3 py-1 rounded-full hover:bg-brand-100 transition" data-i18n="previewDocBtn">
+                    Export Clinical Report
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <select id="trendRangeSelect" onchange="updateTrendChartRange(this.value)" class="bg-white border border-brand-200 rounded-xl px-3.5 py-1.5 text-xs font-bold text-slate-900 shadow-sm focus:outline-none">
+              <option value="7d" data-i18n="optWeek">Past 7 Days ▾</option>
+              <option value="30d" data-i18n="optMonth">Past 30 Days ▾</option>
+            </select>
+            <span class="text-[11px] text-slate-500 font-medium" data-i18n="lastUpdated">Updated: Today 09:30</span>
+          </div>
+
+          <!-- Blood Pressure Line Chart -->
+          <div class="bg-white p-4 rounded-2xl border border-brand-100 custom-shadow space-y-2">
+            <div class="flex justify-between items-center mb-1">
+              <h3 class="text-base font-extrabold text-slate-900" data-i18n="bpTrendTitle">Blood Pressure Trend</h3>
+              <div class="flex items-center space-x-3 text-[11px] font-bold">
+                <span class="flex items-center gap-1 text-slate-800"><span class="w-2.5 h-2.5 rounded-full bg-brand-600"></span> <span data-i18n="sysLbl">Sys</span></span>
+                <span class="flex items-center gap-1 text-slate-600"><span class="w-2.5 h-2.5 rounded-full bg-slate-900"></span> <span data-i18n="diaLbl">Dia</span></span>
+              </div>
+            </div>
+
+            <div class="relative h-44 w-full pt-2">
+              <svg id="bpTrendSvg" class="w-full h-full overflow-visible" viewBox="0 0 300 140">
+                <line x1="30" y1="30" x2="290" y2="30" stroke="#E11D48" stroke-width="1.5" stroke-dasharray="4,4"/>
+                <text x="0" y="33" fill="#E11D48" font-size="9" font-weight="bold">135</text>
+                <line x1="30" y1="90" x2="290" y2="90" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,4"/>
+                <text x="5" y="93" fill="#64748b" font-size="9" font-weight="bold">85</text>
+                <text x="0" y="15" fill="#64748b" font-size="8">mmHg</text>
+
+                <polyline id="sysPolyline" fill="none" stroke="#4F46E5" stroke-width="2.5" points="40,45 80,22 120,50 160,20 200,45 240,35 280,42"/>
+                <polyline id="diaPolyline" fill="none" stroke="#0F172A" stroke-width="2.5" points="40,95 80,82 120,102 160,80 200,95 240,88 280,92"/>
+
+                <circle cx="40" cy="45" r="3" fill="#4F46E5"/>
+                <circle cx="80" cy="22" r="3.5" fill="#E11D48"/>
+                <circle cx="120" cy="50" r="3" fill="#4F46E5"/>
+                <circle cx="160" cy="20" r="3.5" fill="#E11D48"/>
+                <circle cx="200" cy="45" r="3" fill="#4F46E5"/>
+                <circle cx="240" cy="35" r="3" fill="#4F46E5"/>
+                <circle cx="280" cy="42" r="3" fill="#4F46E5"/>
+
+                <text x="32" y="130" fill="#64748b" font-size="8">11/12</text>
+                <text x="72" y="130" fill="#E11D48" font-size="8" font-weight="bold">11/14</text>
+                <text x="112" y="130" fill="#64748b" font-size="8">11/15</text>
+                <text x="152" y="130" fill="#E11D48" font-size="8" font-weight="bold">11/16</text>
+                <text x="192" y="130" fill="#64748b" font-size="8">11/17</text>
+                <text x="232" y="130" fill="#64748b" font-size="8">AM</text>
+                <text x="272" y="130" fill="#4F46E5" font-size="8" font-weight="bold">Today</text>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Top Logged Symptoms Breakdown -->
+          <div class="bg-white p-4 rounded-2xl border border-brand-100 custom-shadow space-y-3">
+            <h3 class="text-base font-extrabold text-slate-900" data-i18n="topSymTitle">Top Logged Symptoms</h3>
+            <div class="grid grid-cols-4 gap-2 text-center">
+              <div class="bg-brand-50 p-2.5 rounded-xl border border-brand-100">
+                <span class="text-sm font-extrabold text-brand-700 block">3x</span>
+                <span class="text-xs font-bold text-slate-900 mt-0.5 block" data-i18n="symDizziness">Dizziness</span>
+              </div>
+              <div class="bg-brand-50 p-2.5 rounded-xl border border-brand-100">
+                <span class="text-sm font-extrabold text-brand-700 block">2x</span>
+                <span class="text-xs font-bold text-slate-900 mt-0.5 block" data-i18n="symHeadache">Headache</span>
+              </div>
+              <div class="bg-brand-50 p-2.5 rounded-xl border border-brand-100">
+                <span class="text-sm font-extrabold text-brand-700 block">1x</span>
+                <span class="text-xs font-bold text-slate-900 mt-0.5 block" data-i18n="symFatigue">Fatigue</span>
+              </div>
+              <div class="bg-brand-50 p-2.5 rounded-xl border border-brand-100">
+                <span class="text-sm font-extrabold text-brand-700 block">0x</span>
+                <span class="text-xs font-bold text-slate-900 mt-0.5 block" data-i18n="symChest">Chest Tight</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 5. APPTS TAB (APPOINTMENTS + HA GO SYNC) ==================== -->
+      <div id="page-appointments" class="tab-page hidden space-y-4 px-4 pt-4">
+        <div class="flex justify-between items-center">
+          <div>
+            <h2 class="text-lg font-extrabold text-slate-900" data-i18n="apptTitle">Medical Appointments</h2>
+            <p class="text-xs text-slate-500" data-i18n="apptSub">Hospital Authority & clinic schedule</p>
+          </div>
+          <button onclick="addManualAppointment()" class="text-xs bg-brand-600 text-white px-3.5 py-2 rounded-xl font-bold shadow-sm hover:bg-brand-700 transition" data-i18n="addApptBtn">
+            + Add Appointment
+          </button>
+        </div>
+
+        <!-- Top Banner Card: Hospital System Sync — HA Go -->
+        <div class="bg-white p-4 rounded-2xl border-2 border-brand-200 custom-shadow flex items-start justify-between gap-3">
+          <div class="flex items-start space-x-3 min-w-0">
+            <div class="w-11 h-11 rounded-2xl bg-brand-600 text-white flex items-center justify-center shrink-0 font-extrabold text-xs shadow-sm">
+              HA Go
+            </div>
+            <div class="min-w-0">
+              <div class="flex items-center gap-1.5">
+                <h3 class="text-sm font-extrabold text-slate-900" data-i18n="haGoBannerTitle">Hospital System Sync — HA Go</h3>
+              </div>
+              <p id="haGoStatusText" class="text-[11px] text-slate-500 mt-0.5" data-i18n="haGoBannerSub">Import Hospital Authority follow-up bookings</p>
+            </div>
+          </div>
+          <button onclick="syncFromHaGo()" id="haGoSyncBtn" class="bg-brand-600 hover:bg-brand-700 text-white text-xs font-extrabold px-3.5 py-2.5 rounded-xl shadow-sm transition shrink-0 self-start flex items-center gap-1.5">
+            <i class="fa-solid fa-rotate"></i>
+            <span data-i18n="syncHaGoBtn">Sync from HA Go</span>
+          </button>
+        </div>
+
+        <!-- Upcoming Appointments List -->
+        <div class="bg-white p-4 rounded-2xl border border-brand-100 custom-shadow space-y-3">
+          <h3 class="text-xs font-extrabold text-slate-500 uppercase tracking-wider" data-i18n="upcomingLbl">Upcoming Appointments</h3>
+          
+          <div id="appointmentsContainer" class="space-y-3">
+            <!-- Existing Clinic Appointment -->
+            <div class="p-3.5 bg-brand-50 rounded-2xl border border-brand-100 flex items-center justify-between" data-appt-card>
+              <div class="flex items-center space-x-3 min-w-0">
+                <div class="w-12 h-12 rounded-xl bg-brand-600 text-white flex flex-col items-center justify-center font-bold text-xs shrink-0">
+                  <span>DEC</span>
+                  <span class="text-base leading-none">10</span>
+                </div>
+                <div class="min-w-0">
+                  <h4 class="text-sm font-extrabold text-slate-900 truncate" data-i18n="appt2Name">Community Rehab — Physiotherapy</h4>
+                  <p class="text-xs text-slate-600 mt-0.5 truncate"><i class="fa-regular fa-clock mr-1"></i>02:00 PM · Wan Chai Clinic</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-1.5 shrink-0">
+                <span class="text-xs font-bold text-brand-700 bg-white border border-brand-200 px-2.5 py-1 rounded-lg self-start" data-i18n="tagTherapy">Therapy</span>
+                <div class="flex gap-1 self-start">
+                  <button type="button" onclick="editAppointment(this)" class="text-[10px] font-bold px-2 py-1 rounded-lg border border-brand-200 bg-white text-brand-700" data-i18n="editApptBtn">Edit</button>
+                  <button type="button" onclick="cancelAppointment(this)" class="text-[10px] font-bold px-2 py-1 rounded-lg border border-alert-200 bg-white text-alert-700" data-i18n="cancelApptBtn">Cancel</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Past Visits -->
+        <div class="bg-white p-4 rounded-2xl border border-brand-100 custom-shadow space-y-2">
+          <h3 class="text-xs font-extrabold text-slate-500 uppercase tracking-wider" data-i18n="pastVisitsLbl">Past Visits</h3>
+          <div class="p-3 bg-brand-50/60 rounded-xl border border-brand-100 flex justify-between items-center text-xs text-slate-700">
+            <div>
+              <span class="font-bold text-slate-900 block" data-i18n="pastApptName">Kwong Wah Hospital — Routine BP Check</span>
+              <span class="text-[11px] text-slate-500">Oct 15, 09:30 AM</span>
+            </div>
+            <span class="font-bold text-brand-700 bg-white border border-brand-200 px-2.5 py-0.5 rounded" data-i18n="completedBadge">Completed</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 6. FAMILY TAB (UNIFIED TWO-WAY SHARING) ==================== -->
+      <div id="page-family" class="tab-page hidden space-y-4 px-4 pt-4 pb-4">
+        <div class="flex justify-between items-center">
+          <div>
+            <h2 class="text-lg font-extrabold text-slate-900" data-i18n="familyTitle">Family Health Sharing</h2>
+            <p class="text-xs text-slate-500" data-i18n="familySub">Two-way care & data permissions</p>
+          </div>
+          <button onclick="showToast('Invite Code Copied: HK-8891')" class="text-xs bg-brand-600 text-white px-3.5 py-2 rounded-xl font-bold shadow-sm hover:bg-brand-700 transition" data-i18n="inviteBtn">
+            + Invite
+          </button>
+        </div>
+
+        <!-- Top Segmented Switcher -->
+        <div class="bg-white border border-brand-100 p-1 rounded-2xl grid grid-cols-2 gap-1 shadow-sm">
+          <button onclick="switchFamilySubTab('receive')" id="subtab-family-receive" class="py-2.5 rounded-xl text-xs font-extrabold bg-brand-600 text-white shadow-sm hover:bg-brand-700 transition flex items-center justify-center gap-1.5">
+            <i class="fa-solid fa-inbox"></i> <span data-i18n="tabFromFamily">From Family</span>
+          </button>
+          <button onclick="switchFamilySubTab('send')" id="subtab-family-send" class="py-2.5 rounded-xl text-xs font-bold text-slate-700 hover:bg-brand-100 transition flex items-center justify-center gap-1.5">
+            <i class="fa-solid fa-share-nodes"></i> <span data-i18n="tabMySharing">My Sharing</span>
+          </button>
+        </div>
+
+        <!-- SUB-VIEW 1: FROM FAMILY -->
+        <div id="family-view-receive" class="space-y-3">
+          <!-- Card A: Mom -->
+          <div class="bg-white p-4 rounded-2xl border border-brand-100 custom-shadow space-y-3">
+            <div class="flex justify-between items-center">
+              <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-full bg-alert-50 border border-alert-200 text-alert-700 flex items-center justify-center font-extrabold text-sm">M</div>
+                <div>
+                  <h3 class="text-sm font-extrabold text-slate-900" data-i18n="momName">Mom (Sau-Ying Li, 78)</h3>
+                  <div class="flex items-center gap-1">
+                    <i class="fa-solid fa-triangle-exclamation text-alert-600 text-[11px] shrink-0"></i>
+                    <span class="text-[11px] text-alert-700 font-bold" data-i18n="famAlertDesc">148/94 mmHg (High) · 10 mins ago</span>
+                  </div>
+                </div>
+              </div>
+              <span class="text-[10px] px-2.5 py-1 bg-alert-50 border border-alert-200 text-alert-700 font-extrabold rounded-full" data-i18n="highBpBadge">High BP</span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2.5 text-xs">
+              <div class="bg-brand-50 p-2.5 rounded-xl border border-brand-100">
+                <span class="text-slate-500 text-[10px] block" data-i18n="latestBpLbl">Latest BP</span>
+                <p class="font-extrabold text-alert-700 mt-0.5">145 / 92 mmHg</p>
+              </div>
+              <div class="bg-brand-50 p-2.5 rounded-xl border border-brand-100">
+                <span class="text-slate-500 text-[10px] block" data-i18n="medStatusLbl">Medication</span>
+                <p class="font-extrabold text-brand-700 mt-0.5" data-i18n="morningTaken">Morning Taken ✓</p>
+              </div>
+            </div>
+            
+            <button onclick="openAiChatModal('Send Care Reminder to Mom')" class="w-full text-xs bg-brand-600 text-white py-2.5 rounded-xl font-bold hover:bg-brand-700 transition flex items-center justify-center gap-1.5 shadow-sm" data-i18n="sendCareBtn">
+              <i class="fa-solid fa-paper-plane text-[10px]"></i> Send Care Reminder
+            </button>
+          </div>
+
+          <!-- Card B: Dad -->
+          <div class="bg-white p-4 rounded-2xl border border-brand-100 custom-shadow space-y-3">
+            <div class="flex justify-between items-center">
+              <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-full bg-brand-50 border border-brand-200 text-brand-700 flex items-center justify-center font-extrabold text-sm">D</div>
+                <div>
+                  <h3 class="text-sm font-extrabold text-slate-900" data-i18n="dadName">Dad (Kin-Kwok Chan, 80)</h3>
+                  <span class="text-[11px] text-slate-500" data-i18n="updatedToday">Updated: Today 08:15</span>
+                </div>
+              </div>
+              <span class="text-[10px] px-2.5 py-1 bg-brand-50 border border-brand-200 text-brand-700 font-bold rounded-full" data-i18n="normalBadge">Normal</span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2.5 text-xs">
+              <div class="bg-brand-50 p-2.5 rounded-xl border border-brand-100">
+                <span class="text-slate-500 text-[10px] block" data-i18n="latestBpLbl">Latest BP</span>
+                <p class="font-extrabold text-slate-900 mt-0.5">122 / 78 mmHg</p>
+              </div>
+              <div class="bg-brand-50 p-2.5 rounded-xl border border-brand-100">
+                <span class="text-slate-500 text-[10px] block" data-i18n="medStatusLbl">Medication</span>
+                <p class="font-extrabold text-brand-700 mt-0.5" data-i18n="morningTaken">Morning Taken ✓</p>
+              </div>
+            </div>
+
+            <button onclick="showToast(currentLang==='en' ? 'Viewing Dad\'s Daily Log (122/78 mmHg · Normal)' : '正在查看爸爸的每日紀錄 (122/78 · 正常)')" class="w-full text-xs bg-brand-50 border border-brand-200 text-brand-700 py-2.5 rounded-xl font-bold hover:bg-brand-100 transition flex items-center justify-center gap-1.5" data-i18n="viewDadLogBtn">
+              <i class="fa-solid fa-clipboard-list text-[11px]"></i> View Daily Log
+            </button>
+          </div>
+        </div>
+
+        <!-- SUB-VIEW 2: MY SHARING (IDENTICAL CARD STRUCTURE & ALIGNMENT) -->
+        <div id="family-view-send" class="space-y-3 hidden">
+          <!-- Identical Top Status Banner -->
+          <div class="bg-white border border-brand-200 p-3.5 rounded-2xl flex items-center justify-between shadow-sm">
+            <div class="flex items-center space-x-3">
+              <div class="w-9 h-9 rounded-xl bg-brand-600 text-white flex items-center justify-center shrink-0">
+                <i class="fa-solid fa-tower-broadcast text-sm"></i>
+              </div>
+              <div>
+                <h4 class="text-xs font-extrabold text-slate-900" data-i18n="liveShareActive">Live Health Sharing is ON</h4>
+                <p class="text-[11px] text-slate-500 mt-0.5" data-i18n="liveShareDesc">Authorized recipients receive real-time alerts</p>
+              </div>
+            </div>
+            <input type="checkbox" checked onchange="showToast(currentLang==='en' ? 'Live sharing updated' : '即時共享狀態已更新')" class="w-5 h-5 accent-brand-600 cursor-pointer shrink-0">
+          </div>
+
+          <!-- Card A: Son (Alex) -->
+          <div class="bg-white p-4 rounded-2xl border border-brand-100 custom-shadow space-y-3">
+            <div class="flex justify-between items-center">
+              <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-full bg-brand-50 border border-brand-200 text-brand-700 flex items-center justify-center font-extrabold text-sm">S</div>
+                <div>
+                  <h3 class="text-sm font-extrabold text-slate-900" data-i18n="sonRecipient">Son (Alex Chan)</h3>
+                  <span class="text-[11px] text-slate-500" data-i18n="fullAccess">Emergency Contact · Family Caregiver</span>
+                </div>
+              </div>
+              <span class="text-[10px] px-2.5 py-1 bg-brand-50 border border-brand-200 text-brand-700 font-bold rounded-full" data-i18n="activeBadge">Active</span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2.5 text-xs">
+              <label class="bg-brand-50 p-2.5 rounded-xl border border-brand-100 flex items-center justify-between cursor-pointer">
+                <div>
+                  <span class="text-slate-500 text-[10px] block" data-i18n="shareVitalsLbl">Vitals & Meds</span>
+                  <span class="font-extrabold text-slate-900 mt-0.5 block" data-i18n="allowedTxt">Shared ✓</span>
+                </div>
+                <input type="checkbox" checked onchange="showToast('Permission updated')" class="w-4 h-4 accent-brand-600">
+              </label>
+
+              <label class="bg-brand-50 p-2.5 rounded-xl border border-brand-100 flex items-center justify-between cursor-pointer">
+                <div>
+                  <span class="text-slate-500 text-[10px] block" data-i18n="shareMoodLbl">Mood & Notes</span>
+                  <span class="font-extrabold text-slate-900 mt-0.5 block" data-i18n="allowedTxt">Shared ✓</span>
+                </div>
+                <input type="checkbox" checked onchange="showToast('Permission updated')" class="w-4 h-4 accent-brand-600">
+              </label>
+            </div>
+
+            <div class="space-y-2">
+              <button onclick="showToast(currentLang==='en' ? 'Family health report exported for Alex!' : '已匯出家庭健康報告給 Alex！')" class="w-full text-xs bg-brand-600 text-white py-2.5 rounded-xl font-bold hover:bg-brand-700 transition flex items-center justify-center gap-1.5 shadow-sm">
+                <i class="fa-solid fa-file-export text-[11px]"></i>
+                <span data-i18n="exportFamilyBtn">Export Family Report</span>
+              </button>
+              <button onclick="showToast(currentLang==='en' ? 'Instant health snapshot sent to Alex!' : '已發送最新健康摘要給兒子！')" class="w-full text-xs bg-brand-50 border border-brand-200 text-brand-700 py-2.5 rounded-xl font-bold hover:bg-brand-100 transition flex items-center justify-center gap-1.5">
+                <i class="fa-solid fa-bolt text-[10px]"></i>
+                <span data-i18n="sendUpdateNowBtn">Send Instant Update</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Card B: Dr. Wong (Family Doctor) -->
+          <div class="bg-white p-4 rounded-2xl border border-brand-100 custom-shadow space-y-3">
+            <div class="flex justify-between items-center">
+              <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-full bg-brand-50 border border-brand-200 text-brand-700 flex items-center justify-center font-extrabold text-sm">Dr</div>
+                <div>
+                  <h3 class="text-sm font-extrabold text-slate-900" data-i18n="docRecipient">Dr. Wong (Family Doctor)</h3>
+                  <span class="text-[11px] text-slate-500" data-i18n="vitalsOnly">Queen Mary Hospital Outpatient Clinic</span>
+                </div>
+              </div>
+              <span class="text-[10px] px-2.5 py-1 bg-brand-50 border border-brand-200 text-brand-700 font-bold rounded-full" data-i18n="activeBadge">Active</span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2.5 text-xs">
+              <label class="bg-brand-50 p-2.5 rounded-xl border border-brand-100 flex items-center justify-between cursor-pointer">
+                <div>
+                  <span class="text-slate-500 text-[10px] block" data-i18n="shareVitalsLbl">Vitals & Meds</span>
+                  <span class="font-extrabold text-slate-900 mt-0.5 block" data-i18n="allowedTxt">Shared ✓</span>
+                </div>
+                <input type="checkbox" checked onchange="showToast('Permission updated')" class="w-4 h-4 accent-brand-600">
+              </label>
+
+              <label class="bg-brand-50 p-2.5 rounded-xl border border-brand-100 flex items-center justify-between cursor-pointer">
+                <div>
+                  <span class="text-slate-500 text-[10px] block" data-i18n="shareMoodLbl">Mood & Notes</span>
+                  <span class="font-extrabold text-slate-500 mt-0.5 block" data-i18n="privateTxt">Private 🔒</span>
+                </div>
+                <input type="checkbox" onchange="showToast('Permission updated')" class="w-4 h-4 accent-brand-600">
+              </label>
+            </div>
+
+            <button onclick="openDoctorSummaryModal()" class="w-full text-xs bg-brand-600 text-white py-2.5 rounded-xl font-bold hover:bg-brand-700 transition flex items-center justify-center gap-1.5 shadow-sm">
+              <i class="fa-solid fa-stethoscope text-[11px]"></i>
+              <span data-i18n="previewDocBtn">Export Clinical Report</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 8. PERSONAL PROFILE VIEW ==================== -->
+      <div id="page-profile" class="tab-page hidden space-y-4 px-4 pt-4 pb-4">
+        <div class="flex justify-between items-center">
+          <h2 class="text-lg font-extrabold text-slate-900" data-i18n="profileTitle">Profile & Settings</h2>
+          <span class="text-xs bg-white border border-brand-200 text-brand-700 font-bold px-2.5 py-1 rounded-full">Senior Care Plus</span>
+        </div>
+
+        <!-- Patient Identity Card -->
+        <div class="bg-white p-4 rounded-2xl border border-brand-100 custom-shadow flex items-center space-x-3.5">
+          <div class="w-14 h-14 rounded-full bg-brand-600 text-white flex items-center justify-center font-extrabold text-xl shadow-sm shrink-0">
+            C
+          </div>
+          <div>
+            <h3 class="text-base font-extrabold text-slate-900" data-i18n="userNameFull">Ms. Sau-Fong Chan (68)</h3>
+            <p class="text-xs text-slate-500" data-i18n="userBio">Hypertension & Pre-Diabetes · Blood Type O+</p>
+            <span class="text-[11px] text-brand-700 font-bold bg-brand-50 border border-brand-100 px-2.5 py-0.5 rounded-md mt-1 inline-block" data-i18n="emergencyContact">Emergency: Son Alex (9123-4567)</span>
+          </div>
+        </div>
+
+        <!-- Health Conditions Card -->
+        <div class="bg-white p-4 rounded-2xl border border-brand-100 custom-shadow space-y-3">
+          <div class="flex items-center justify-between gap-2">
+            <h3 class="text-sm font-extrabold text-slate-900 flex items-center gap-1.5">
+              <i class="fa-solid fa-notes-medical text-brand-600"></i>
+              <span data-i18n="conditionsTitle">My Health Conditions</span>
+            </h3>
+            <span class="text-[10px] font-bold text-brand-700 bg-brand-50 border border-brand-100 px-2 py-0.5 rounded-full shrink-0" data-i18n="conditionsMulti">Multi-select</span>
+          </div>
+          <p class="text-[11px] text-slate-500" data-i18n="conditionsSub">Select all that apply — used to tailor reminders and clinical reports.</p>
+          <div class="flex flex-wrap gap-2" id="conditionChips">
+            <button type="button" onclick="toggleConditionChip(this)" class="condition-chip text-xs font-extrabold px-3 py-2 rounded-xl border border-brand-200 bg-brand-600 text-white transition" data-i18n="condHypertension">Hypertension</button>
+            <button type="button" onclick="toggleConditionChip(this)" class="condition-chip text-xs font-bold px-3 py-2 rounded-xl border border-brand-200 bg-brand-50/70 text-slate-900 transition" data-i18n="condDiabetes">Diabetes</button>
+            <button type="button" onclick="toggleConditionChip(this)" class="condition-chip text-xs font-bold px-3 py-2 rounded-xl border border-brand-200 bg-brand-50/70 text-slate-900 transition" data-i18n="condDepression">Depression</button>
+            <button type="button" onclick="toggleConditionChip(this)" class="condition-chip text-xs font-bold px-3 py-2 rounded-xl border border-brand-200 bg-brand-50/70 text-slate-900 transition" data-i18n="condLongTerm">Long-term Illness</button>
+          </div>
+        </div>
+
+        <!-- Connected Devices & Apps Card -->
+        <div class="bg-white p-4 rounded-2xl border border-brand-100 custom-shadow space-y-3">
+          <div class="flex justify-between items-center">
+            <h3 class="text-sm font-extrabold text-slate-900 flex items-center gap-1.5">
+              <i class="fa-solid fa-link text-brand-600"></i> <span data-i18n="wearablesTitle">Connected Devices & Apps</span>
+            </h3>
+            <button onclick="syncAllDevicesProfile()" class="text-xs font-extrabold bg-brand-600 text-white px-3 py-1.5 rounded-xl hover:bg-brand-700 transition shadow-sm" data-i18n="syncAllNowBtn">
+              Sync All Now
+            </button>
+          </div>
+
+          <div class="space-y-2">
+            <div class="bg-brand-50 p-3 rounded-xl border border-brand-100 flex items-center justify-between text-xs">
+              <div>
+                <p class="font-bold text-slate-900" data-i18n="xiaomiWatchName">Xiaomi Watch / Mi Fitness</p>
+                <p class="text-[10px] text-slate-500 mt-0.5" data-i18n="autoSyncSub">Auto-syncs BP, Glucose & Heart Rate</p>
+              </div>
+              <input type="checkbox" checked onchange="showToast('Xiaomi Watch sync updated')" class="w-5 h-5 accent-brand-600 cursor-pointer">
+            </div>
+
+            <div class="bg-brand-50 p-3 rounded-xl border border-brand-100 flex items-center justify-between text-xs">
+              <div>
+                <p class="font-bold text-slate-900" data-i18n="haGoAppName">HA Go Hospital App</p>
+                <p class="text-[10px] text-slate-500 mt-0.5" data-i18n="haGoProfileSub">Hospital Authority clinic appointments</p>
+              </div>
+              <input type="checkbox" id="profileHaGoToggle" checked onchange="showToast('HA Go sync updated')" class="w-5 h-5 accent-brand-600 cursor-pointer">
+            </div>
+
+            <div class="bg-brand-50 p-3 rounded-xl border border-brand-100 flex items-center justify-between text-xs">
+              <div>
+                <p class="font-bold text-slate-900" data-i18n="appleHealthName">Apple Health</p>
+                <p class="text-[10px] text-slate-500 mt-0.5" data-i18n="appleHealthSub">Activity & resting vitals backup</p>
+              </div>
+              <input type="checkbox" checked onchange="showToast('Apple Health sync updated')" class="w-5 h-5 accent-brand-600 cursor-pointer">
+            </div>
+          </div>
+        </div>
+
+        <!-- Language & Accessibility Preferences -->
+        <div class="bg-white rounded-2xl border border-brand-100 custom-shadow overflow-hidden text-xs divide-y divide-brand-100">
+          <div class="p-3.5 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+              <i class="fa-solid fa-globe text-brand-600 text-sm"></i>
+              <span class="font-bold text-slate-900" data-i18n="dispLangLbl">Display Language</span>
+            </div>
+            <select id="langSelect" onchange="changeLanguage(this.value)" class="bg-brand-50 border border-brand-200 rounded-lg px-2.5 py-1 text-xs font-bold text-slate-900 focus:outline-none">
+              <option value="en" selected>English</option>
+              <option value="zh-HK">繁體中文 (廣東話)</option>
+            </select>
+          </div>
+
+          <div class="p-3.5 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+              <i class="fa-solid fa-text-height text-brand-600 text-sm"></i>
+              <span class="font-bold text-slate-900" data-i18n="elderFontLbl">Senior Large Text Mode</span>
+            </div>
+            <input type="checkbox" onchange="toggleElderMode(this)" class="w-5 h-5 accent-brand-600 cursor-pointer">
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ==================== 5-SLOT BOTTOM NAVBAR ==================== -->
+    <nav class="absolute bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-brand-100 px-2 py-1.5 grid grid-cols-5 items-center z-30">
+      <button onclick="switchTab('home')" id="nav-home" class="nav-btn active flex flex-col items-center justify-center space-y-0.5 text-brand-600 py-1">
+        <div class="w-8 h-6 flex items-center justify-center rounded-xl bg-brand-50 transition">
+          <i class="fa-solid fa-house text-sm"></i>
+        </div>
+        <span class="text-[11px] font-extrabold" data-i18n="navHome">Home</span>
+      </button>
+
+      <button onclick="switchTab('health')" id="nav-health" class="nav-btn flex flex-col items-center justify-center space-y-0.5 text-slate-500 py-1">
+        <div class="w-8 h-6 flex items-center justify-center rounded-xl transition">
+          <i class="fa-solid fa-notes-medical text-sm"></i>
+        </div>
+        <span class="text-[11px] font-bold" data-i18n="navHealth">Health</span>
+      </button>
+
+      <!-- Center Raised Capsule Badge: Ask AI / 問康伴 -->
+      <div class="flex flex-col items-center justify-center relative -top-3">
+        <button onclick="openAiChatModal()" class="px-3.5 py-2.5 rounded-2xl bg-brand-600 hover:bg-brand-700 text-white flex flex-col items-center justify-center shadow-lg border-2 border-white transition transform active:scale-95 pulse-mic">
+          <i class="fa-solid fa-microphone-lines text-sm"></i>
+          <span class="text-[11px] font-extrabold tracking-tight mt-0.5 whitespace-nowrap" data-i18n="navAskAi">Ask AI</span>
+        </button>
+      </div>
+
+      <button onclick="switchTab('appointments')" id="nav-appointments" class="nav-btn flex flex-col items-center justify-center space-y-0.5 text-slate-500 py-1">
+        <div class="w-8 h-6 flex items-center justify-center rounded-xl transition">
+          <i class="fa-regular fa-calendar-check text-sm"></i>
+        </div>
+        <span class="text-[11px] font-bold" data-i18n="navAppts">Appts</span>
+      </button>
+
+      <button onclick="switchTab('family')" id="nav-family" class="nav-btn flex flex-col items-center justify-center space-y-0.5 text-slate-500 py-1 relative">
+        <span class="w-2 h-2 rounded-full bg-alert-600 absolute top-1 right-4"></span>
+        <div class="w-8 h-6 flex items-center justify-center rounded-xl transition">
+          <i class="fa-solid fa-user-group text-sm"></i>
+        </div>
+        <span class="text-[11px] font-bold" data-i18n="navFamily">Family</span>
+      </button>
+    </nav>
+
+    <!-- ==================== 4. ASK AI VOICE ASSISTANT MODAL (VOICE-TO-RECORD DEMO) ==================== -->
+    <div id="aiChatModal" class="absolute inset-0 bg-slate-900/70 backdrop-blur-md z-[10000] flex items-end justify-center hidden">
+      <div class="bg-white w-full h-[88%] rounded-t-3xl flex flex-col overflow-hidden shadow-2xl relative">
+        <!-- Header -->
+        <div class="bg-brand-600 text-white px-4 py-3.5 flex justify-between items-center shrink-0">
+          <div class="flex items-center space-x-2.5">
+            <div class="w-9 h-9 rounded-full bg-white/20 border border-white/30 flex items-center justify-center text-white font-bold">
+              <i class="fa-solid fa-microphone-lines text-base"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-sm leading-none" data-i18n="aiModalTitle">Ask AI Voice Assistant</h3>
+              <span class="text-[10px] text-brand-100 flex items-center gap-1 mt-0.5">
+                <span class="w-1.5 h-1.5 bg-white rounded-full animate-ping"></span>
+                <span data-i18n="aiOnlineSub">Cantonese & English Voice-to-Log Ready</span>
+              </span>
+            </div>
+          </div>
+          <button onclick="closeAiChatModal()" class="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition">
+            <i class="fa-solid fa-xmark text-sm"></i>
+          </button>
+        </div>
+
+        <!-- Chat & Structured Result Stream -->
+        <div id="chatMessages" class="flex-1 overflow-y-auto p-4 space-y-3 bg-brand-50/60 text-xs">
+          <div class="flex space-x-2">
+            <div class="w-7 h-7 rounded-full bg-brand-600 text-white flex items-center justify-center shrink-0 text-xs">
+              <i class="fa-solid fa-heart-pulse"></i>
+            </div>
+            <div class="bg-white p-3 rounded-2xl border border-brand-100 shadow-sm max-w-[85%] text-slate-900 space-y-1">
+              <p class="font-bold text-brand-600 text-[11px]">CareMate AI:</p>
+              <p data-i18n="aiGreeting">Hello Ms. Chan! Tap the microphone below to speak your blood pressure, symptoms, and medication status.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Input & Pulsing Mic Bar -->
+        <div class="p-3 bg-white border-t border-brand-100 flex items-center space-x-2 shrink-0">
+          <button id="micBtn" onclick="simulateVoiceInputDemo()" class="w-11 h-11 rounded-2xl bg-brand-600 hover:bg-brand-700 text-white flex items-center justify-center text-base shrink-0 shadow-md pulse-mic transition">
+            <i class="fa-solid fa-microphone"></i>
+          </button>
+          <input type="text" id="chatInput" placeholder="Speak or type your vitals & symptoms..." class="flex-1 border border-brand-200 rounded-2xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-brand-600">
+          <button onclick="sendChatMessage()" class="w-10 h-10 rounded-2xl bg-slate-900 text-white flex items-center justify-center text-sm shadow-sm hover:bg-slate-800 shrink-0 transition">
+            <i class="fa-solid fa-paper-plane"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== 7. DOCTOR'S CLINICAL AI SUMMARY VIEW (FULL-SCREEN MODAL) ==================== -->
+    <div id="doctorSummaryModal" class="absolute inset-0 bg-slate-900/75 backdrop-blur-md z-[10005] flex items-end justify-center hidden">
+      <div class="bg-brand-50 w-full h-[92%] rounded-t-3xl flex flex-col overflow-hidden shadow-2xl relative">
+        
+        <!-- Clinical Top Header -->
+        <div class="bg-slate-900 text-white px-4 py-3.5 flex justify-between items-center shrink-0">
+          <div class="flex items-center space-x-2.5">
+            <div class="w-9 h-9 rounded-xl bg-brand-600 text-white flex items-center justify-center font-extrabold text-sm">
+              <i class="fa-solid fa-stethoscope"></i>
+            </div>
+            <div>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-brand-200 block" data-i18n="docPortalTag">Clinical Summary Portal · Dr. Wong</span>
+              <h3 class="font-extrabold text-sm leading-tight" data-i18n="docPatientHeader">Patient: Ms. Chan (68F · Hypertension)</h3>
+            </div>
+          </div>
+          <button onclick="closeDoctorSummaryModal()" class="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition">
+            <i class="fa-solid fa-xmark text-sm"></i>
+          </button>
+        </div>
+
+        <!-- Scrollable Clinical Report Body -->
+        <div class="flex-1 overflow-y-auto p-4 space-y-3.5">
+          
+          <!-- 7-Day AI Clinical Triage Highlights -->
+          <div class="bg-white p-4 rounded-2xl border border-brand-200 custom-shadow space-y-2.5">
+            <div class="flex items-center justify-between">
+              <h4 class="text-sm font-extrabold text-slate-900 flex items-center gap-1.5">
+                <i class="fa-solid fa-wand-magic-sparkles text-brand-600"></i>
+                <span data-i18n="docTriageTitle">7-Day AI Clinical Triage Highlights</span>
+              </h4>
+              <span class="text-[10px] font-extrabold bg-alert-50 text-alert-700 border border-alert-200 px-2 py-0.5 rounded-full" data-i18n="docReviewFlag">Attention Flag</span>
+            </div>
+            <ul class="space-y-2 text-xs text-slate-800">
+              <li class="bg-alert-50 border border-alert-200 p-2.5 rounded-xl flex items-start gap-2">
+                <span class="text-alert-600 font-extrabold">•</span>
+                <span data-i18n="docBullet1"><strong>3 Morning Systolic Spikes (&gt;135 mmHg):</strong> Peak 142/92 mmHg on Nov 16; correlated with patient-reported dizziness.</span>
+              </li>
+              <li class="bg-brand-50 border border-brand-100 p-2.5 rounded-xl flex items-start gap-2">
+                <span class="text-brand-600 font-extrabold">•</span>
+                <span data-i18n="docBullet2"><strong>92% Medication Adherence:</strong> Amlodipine 5mg taken consistently; 6 days of supply remaining (refill advised).</span>
+              </li>
+              <li class="bg-brand-50 border border-brand-100 p-2.5 rounded-xl flex items-start gap-2">
+                <span class="text-brand-600 font-extrabold">•</span>
+                <span data-i18n="docBullet3"><strong>7-Day Mean Vitals:</strong> Avg BP 129/83 mmHg · Resting HR 72 bpm · Fasting Glucose 5.8 mmol/L.</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Compact Clinical BP Trend Chart -->
+          <div class="bg-white p-4 rounded-2xl border border-brand-100 custom-shadow space-y-2">
+            <div class="flex justify-between items-center">
+              <h4 class="text-xs font-extrabold text-slate-900 uppercase tracking-wider" data-i18n="docChartTitle">7-Day Clinical BP Trajectory</h4>
+              <span class="text-[10px] font-bold text-alert-600" data-i18n="docThresholdLbl">Threshold: 135/85 mmHg</span>
+            </div>
+            <div class="h-32 w-full pt-1">
+              <svg class="w-full h-full overflow-visible" viewBox="0 0 300 110">
+                <line x1="25" y1="25" x2="290" y2="25" stroke="#E11D48" stroke-width="1.2" stroke-dasharray="3,3"/>
+                <text x="0" y="28" fill="#E11D48" font-size="8" font-weight="bold">135</text>
+                <line x1="25" y1="75" x2="290" y2="75" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="3,3"/>
+                <text x="4" y="78" fill="#64748b" font-size="8" font-weight="bold">85</text>
+
+                <polyline fill="none" stroke="#4F46E5" stroke-width="2.5" points="35,40 78,16 121,42 164,14 207,38 250,32 285,36"/>
+                <polyline fill="none" stroke="#0F172A" stroke-width="2" points="35,78 78,66 121,82 164,64 207,78 250,74 285,76"/>
+
+                <circle cx="78" cy="16" r="3.5" fill="#E11D48"/>
+                <circle cx="164" cy="14" r="3.5" fill="#E11D48"/>
+                <circle cx="285" cy="36" r="3.5" fill="#4F46E5"/>
+
+                <text x="28" y="102" fill="#64748b" font-size="8">11/12</text>
+                <text x="70" y="102" fill="#E11D48" font-size="8" font-weight="bold">11/14</text>
+                <text x="114" y="102" fill="#64748b" font-size="8">11/15</text>
+                <text x="156" y="102" fill="#E11D48" font-size="8" font-weight="bold">11/16</text>
+                <text x="200" y="102" fill="#64748b" font-size="8">11/17</text>
+                <text x="275" y="102" fill="#4F46E5" font-size="8" font-weight="bold">11/18</text>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Medication Regimen Table -->
+          <div class="bg-white p-4 rounded-2xl border border-brand-100 custom-shadow space-y-2">
+            <h4 class="text-xs font-extrabold text-slate-900 uppercase tracking-wider" data-i18n="docMedTableTitle">Active Medication Regimen</h4>
+            <div class="divide-y divide-brand-100 text-xs">
+              <div class="py-2 flex justify-between items-center">
+                <div>
+                  <span class="font-extrabold text-slate-900 block">Amlodipine 5mg</span>
+                  <span class="text-[11px] text-slate-500">1 tab PO daily (AM)</span>
+                </div>
+                <span class="font-bold text-brand-700 bg-brand-50 px-2.5 py-0.5 rounded-lg">95% Adherent</span>
+              </div>
+              <div class="py-2 flex justify-between items-center">
+                <div>
+                  <span class="font-extrabold text-slate-900 block">Metformin 500mg</span>
+                  <span class="text-[11px] text-slate-500">1 tab PO daily (PM)</span>
+                </div>
+                <span class="font-bold text-brand-700 bg-brand-50 px-2.5 py-0.5 rounded-lg">90% Adherent</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Action Bar -->
+        <div class="p-4 bg-white border-t border-brand-100 flex gap-3 shrink-0">
+          <button onclick="closeDoctorSummaryModal()" class="flex-1 py-3 rounded-xl border border-brand-200 text-slate-700 font-bold text-xs hover:bg-brand-100 transition" data-i18n="closeBtn">
+            Close
+          </button>
+          <button onclick="showToast(currentLang==='en' ? 'Clinical PDF exported for Dr. Wong!' : '已匯出臨床 PDF 報告給黃醫生！'); closeDoctorSummaryModal();" class="flex-[2] py-3 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-extrabold text-xs flex items-center justify-center gap-1.5 shadow-md transition">
+            <i class="fa-solid fa-file-pdf"></i>
+            <span data-i18n="exportClinicalPdfBtn">Confirm Export</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="absolute top-14 left-1/2 transform -translate-x-1/2 bg-slate-900 text-white text-xs font-semibold px-4 py-2 rounded-full shadow-lg transition-all duration-300 opacity-0 pointer-events-none z-[10010] flex items-center gap-2 whitespace-nowrap">
+      <i class="fa-solid fa-circle-check text-brand-200"></i>
+      <span id="toastMsg">Notification</span>
+    </div>
+
+  </div>
+
+  <script>
+    let currentLang = 'en';
+    let selectedSymptoms = ['None'];
+    let selectedMood = { emoji: '🙂', label: 'Good' };
+    let haGoSynced = false;
+
+    // Historical & Today Calendar Data Store
+    const calendarHealthData = {
+      14: {
+        dateLabelEn: 'Nov 14 Vitals',
+        dateLabelZh: '11月14日 數據',
+        scoreTextEn: 'Score: 65/100 · Attention Needed',
+        scoreTextZh: '評分: 65/100 · 需多加留意',
+        abnormal: true,
+        bp: '139 / 89 mmHg',
+        symEn: 'Mild Headache',
+        symZh: '輕微頭痛'
+      },
+      15: {
+        dateLabelEn: 'Nov 15 Vitals',
+        dateLabelZh: '11月15日 數據',
+        scoreTextEn: 'Score: 88/100 · Good',
+        scoreTextZh: '評分: 88/100 · 狀態良好',
+        abnormal: false,
+        bp: '126 / 81 mmHg',
+        symEn: 'Feeling Good 😊',
+        symZh: '無特別不適 😊'
+      },
+      16: {
+        dateLabelEn: 'Nov 16 Vitals',
+        dateLabelZh: '11月16日 數據',
+        scoreTextEn: 'Score: 62/100 · Attention Needed',
+        scoreTextZh: '評分: 62/100 · 需多加留意',
+        abnormal: true,
+        bp: '142 / 92 mmHg',
+        symEn: 'Dizziness + Headache',
+        symZh: '頭暈及頭痛'
+      },
+      17: {
+        dateLabelEn: 'Nov 17 Vitals',
+        dateLabelZh: '11月17日 數據',
+        scoreTextEn: 'Score: 94/100 · Good',
+        scoreTextZh: '評分: 94/100 · 狀態良好',
+        abnormal: false,
+        bp: '121 / 78 mmHg',
+        symEn: 'Feeling Good 😊',
+        symZh: '無特別不適 😊'
+      },
+      18: {
+        dateLabelEn: "Today's Vitals",
+        dateLabelZh: '今日數據概覽',
+        scoreTextEn: 'Score: 92/100 · Good',
+        scoreTextZh: '評分: 92/100 · 狀態良好',
+        abnormal: false,
+        bp: '124 / 80 mmHg',
+        symEn: 'Feeling Good 😊',
+        symZh: '無特別不適 😊'
+      }
+    };
+
+    const i18nDict = {
+      'en': {
+        appName: 'CareMate',
+        welcomeUser: 'Welcome, Ms. Chan',
+        profileShort: 'Profile',
+        monthTitle: 'November',
+        calExpand: 'Month View',
+        calCollapse: 'Collapse Calendar',
+        calLegend: 'Health Score < 70 (Tap past dates to inspect)',
+        todayTasks: "Today's Tasks",
+        taskProgress: '1/2 Done',
+        task1Title: 'Measure Blood Pressure (09:00)',
+        noteLbl: 'Note:',
+        task1Note: 'Rest quietly for 5 mins before measuring.',
+        targetLbl: 'Target:',
+        task2Title: 'Take Medication (12:00)',
+        medLbl: 'Medication:',
+        instLbl: 'Instruction:',
+        task2Note: 'Take after lunch with warm water. Avoid grapefruit.',
+        todayVitals: "Today's Vitals",
+        bpLbl: 'Blood Pressure:',
+        symptomLbl: 'Symptoms:',
+        noDiscomfort: 'Feeling Good 😊',
+        logDetails: 'Log Vitals →',
+        familyCareCard: 'Family Care',
+        momAlertTitle: '⚠️ Mom BP Alert',
+        dadStatus: 'Dad: Meds Taken ✓',
+        viewFamily: 'Open Sharing →',
+        medTrackingTitle: 'Medication & Insulin',
+        medLowAlert: '⚠️ 6 Days Left',
+        medAmlodipine: 'Amlodipine 5mg (BP)',
+        medAmloSub: '1 tablet · Morning after breakfast',
+        daysLeft6: '⚠️ 6d left',
+        medMetformin: 'Metformin 500mg (Glucose)',
+        medMetSub: '1 tablet · Evening with dinner',
+        daysLeft18: '18d left',
+        aiWeeklyTitle: 'AI Weekly Summary',
+        aiWeeklySub: '92% adherence · 3 morning BP spikes noted',
+        previewDocBtn: 'Export Clinical Report',
+        subDailyLog: 'Daily Log',
+        subAiTrends: 'Trends & AI',
+        syncBannerTitle: 'Sync Device / App',
+        syncedBadge: 'Synced ✓',
+        syncBannerSub: 'Auto-fill BP, Glucose & HR from Mi Fitness',
+        syncXiaomiBtn: 'Sync Xiaomi Watch (Mi Fitness)',
+        sec1VitalsTitle: '1. Physical Vitals & Symptoms',
+        priorityBadge: 'Priority',
+        bpInputLbl: 'Blood Pressure — Systolic / Diastolic (mmHg)',
+        glucoseInputLbl: 'Blood Glucose (mmol/L)',
+        hrInputLbl: 'Heart Rate (bpm)',
+        symChipsTitle: 'Hypertension & Body Symptoms (Multi-select)',
+        symHeadache: 'Headache',
+        symDizziness: 'Dizziness',
+        symChest: 'Chest Tightness',
+        symFatigue: 'Fatigue',
+        symNone: 'None ✓',
+        sec2MoodTitle: "2. Today's Mood",
+        moodGreat: 'Great',
+        moodGood: 'Good',
+        moodOkay: 'Okay',
+        moodLowShort: 'Low',
+        moodUnwell: 'Unwell',
+        btnAskAiSummary: 'Ask AI Summary',
+        btnSaveTodaysLog: "Save Today's Log",
+        aiInsightQuote: '"Over the past week, 3 morning systolic spikes (>135 mmHg) correlated with mild dizziness. Evening readings remain stable."',
+        optWeek: 'Past 7 Days ▾',
+        optMonth: 'Past 30 Days ▾',
+        lastUpdated: 'Updated: Today 09:30',
+        bpTrendTitle: 'Blood Pressure Trend',
+        sysLbl: 'Sys',
+        diaLbl: 'Dia',
+        topSymTitle: 'Top Logged Symptoms',
+        apptTitle: 'Medical Appointments',
+        apptSub: 'Hospital Authority & clinic schedule',
+        addApptBtn: '+ Add Appointment',
+        haGoBannerTitle: 'Hospital System Sync — HA Go',
+        haGoBannerSub: 'Import Hospital Authority follow-up bookings',
+        syncHaGoBtn: 'Sync from HA Go',
+        editApptBtn: 'Edit',
+        cancelApptBtn: 'Cancel',
+        upcomingLbl: 'Upcoming Appointments',
+        appt2Name: 'Community Rehab — Physiotherapy',
+        tagTherapy: 'Therapy',
+        pastVisitsLbl: 'Past Visits',
+        pastApptName: 'Kwong Wah Hospital — Routine BP Check',
+        completedBadge: 'Completed',
+        familyTitle: 'Family Health Sharing',
+        familySub: 'Two-way care & data permissions',
+        inviteBtn: '+ Invite',
+        tabFromFamily: 'From Family',
+        tabMySharing: 'My Sharing',
+        famAlertDesc: '148/94 mmHg (High) · 10 mins ago',
+        highBpBadge: 'High BP',
+        momName: 'Mom (Sau-Ying Li, 78)',
+        latestBpLbl: 'Latest BP',
+        medStatusLbl: 'Medication',
+        morningTaken: 'Morning Taken ✓',
+        sendCareBtn: 'Send Care Reminder',
+        dadName: 'Dad (Kin-Kwok Chan, 80)',
+        updatedToday: 'Updated: Today 08:15',
+        normalBadge: 'Normal',
+        viewDadLogBtn: 'View Daily Log',
+        liveShareActive: 'Live Health Sharing is ON',
+        liveShareDesc: 'Authorized recipients receive real-time alerts',
+        sonRecipient: 'Son (Alex Chan)',
+        fullAccess: 'Emergency Contact · Family Caregiver',
+        activeBadge: 'Active',
+        shareVitalsLbl: 'Vitals & Meds',
+        shareMoodLbl: 'Mood & Notes',
+        allowedTxt: 'Shared ✓',
+        privateTxt: 'Private 🔒',
+        exportFamilyBtn: 'Export Family Report',
+        sendUpdateNowBtn: 'Send Instant Update',
+        docRecipient: 'Dr. Wong (Family Doctor)',
+        vitalsOnly: 'Queen Mary Hospital Outpatient Clinic',
+        profileTitle: 'Profile & Settings',
+        userNameFull: 'Ms. Sau-Fong Chan (68)',
+        userBio: 'Hypertension & Pre-Diabetes · Blood Type O+',
+        emergencyContact: 'Emergency: Son Alex (9123-4567)',
+        conditionsTitle: 'My Health Conditions',
+        conditionsMulti: 'Multi-select',
+        conditionsSub: 'Select all that apply — used to tailor reminders and clinical reports.',
+        condHypertension: 'Hypertension',
+        condDiabetes: 'Diabetes',
+        condDepression: 'Depression',
+        condLongTerm: 'Long-term Illness',
+        wearablesTitle: 'Connected Devices & Apps',
+        syncAllNowBtn: 'Sync All Now',
+        xiaomiWatchName: 'Xiaomi Watch / Mi Fitness',
+        autoSyncSub: 'Auto-syncs BP, Glucose & Heart Rate',
+        haGoAppName: 'HA Go Hospital App',
+        haGoProfileSub: 'Hospital Authority clinic appointments',
+        appleHealthName: 'Apple Health',
+        appleHealthSub: 'Activity & resting vitals backup',
+        dispLangLbl: 'Display Language',
+        elderFontLbl: 'Senior Large Text Mode',
+        navHome: 'Home',
+        navHealth: 'Health',
+        navAskAi: 'Ask AI',
+        navAppts: 'Appts',
+        navFamily: 'Family',
+        aiModalTitle: 'Ask AI Voice Assistant',
+        aiOnlineSub: 'Cantonese & English Voice-to-Log Ready',
+        aiGreeting: 'Hello Ms. Chan! Tap the microphone below to speak your blood pressure, symptoms, and medication status.',
+        docPortalTag: 'Clinical Summary Portal · Dr. Wong',
+        docPatientHeader: 'Patient: Ms. Chan (68F · Hypertension)',
+        docTriageTitle: '7-Day AI Clinical Triage Highlights',
+        docReviewFlag: 'Attention Flag',
+        docBullet1: '3 Morning Systolic Spikes (>135 mmHg): Peak 142/92 mmHg on Nov 16; correlated with patient-reported dizziness.',
+        docBullet2: '92% Medication Adherence: Amlodipine 5mg taken consistently; 6 days of supply remaining (refill advised).',
+        docBullet3: '7-Day Mean Vitals: Avg BP 129/83 mmHg · Resting HR 72 bpm · Fasting Glucose 5.8 mmol/L.',
+        docChartTitle: '7-Day Clinical BP Trajectory',
+        docThresholdLbl: 'Threshold: 135/85 mmHg',
+        docMedTableTitle: 'Active Medication Regimen',
+        closeBtn: 'Close',
+        exportClinicalPdfBtn: 'Confirm Export'
+      },
+      'zh-HK': {
+        appName: '康伴 CareMate',
+        welcomeUser: '陳女士，歡迎使用康伴',
+        profileShort: '個人中心',
+        monthTitle: '11月',
+        calExpand: '月視圖',
+        calCollapse: '收起月曆',
+        calLegend: '健康評分 < 70 (點擊過去日期查看詳情)',
+        todayTasks: '今日待辦',
+        taskProgress: '1/2 完成',
+        task1Title: '量血壓 (09:00)',
+        noteLbl: '注意事項：',
+        task1Note: '請在靜坐休息 5 分鐘後再進行測量。',
+        targetLbl: '目標範圍：',
+        task2Title: '吃藥 (12:00)',
+        medLbl: '藥物清單：',
+        instLbl: '服用指示：',
+        task2Note: '飯後配合溫開水服用，切勿配葡萄柚汁。',
+        todayVitals: '今日數據概覽',
+        bpLbl: '血壓:',
+        symptomLbl: '今日症狀:',
+        noDiscomfort: '狀態良好 😊',
+        logDetails: '記錄數據 →',
+        familyCareCard: '家人共享動態',
+        momAlertTitle: '⚠️ 媽媽血壓偏高',
+        dadStatus: '爸爸：早藥已吃 ✓',
+        viewFamily: '進入共享 →',
+        medTrackingTitle: '藥物與針劑追蹤',
+        medLowAlert: '⚠️ 剩 6 日補藥',
+        medAmlodipine: 'Amlodipine 5mg (降血壓藥)',
+        medAmloSub: '每日 1 粒 · 早餐後服用',
+        daysLeft6: '⚠️ 剩 6 日',
+        medMetformin: 'Metformin 500mg (控血糖藥)',
+        medMetSub: '每日 1 粒 · 晚餐時服用',
+        daysLeft18: '剩 18 日',
+        aiWeeklyTitle: 'AI 本週健康總結',
+        aiWeeklySub: '92% 按時服藥 · 錄得 3 次晨間血壓偏高',
+        previewDocBtn: '匯出臨床報告',
+        subDailyLog: '每日紀錄',
+        subAiTrends: '趨勢與 AI 分析',
+        syncBannerTitle: '同步穿戴裝置 / App',
+        syncedBadge: '已同步 ✓',
+        syncBannerSub: '從小米運動健康自動匯入血壓、血糖與心率',
+        syncXiaomiBtn: '同步小米手錶 (Mi Fitness)',
+        sec1VitalsTitle: '1. 生理數據與身體症狀',
+        priorityBadge: '優先填寫',
+        bpInputLbl: '血壓 — 收縮壓 / 舒張壓 (mmHg)',
+        glucoseInputLbl: '血糖 (mmol/L)',
+        hrInputLbl: '心率 (bpm)',
+        symChipsTitle: '高血壓及身體症狀 (可多選)',
+        symHeadache: '頭痛',
+        symDizziness: '頭暈',
+        symChest: '胸悶',
+        symFatigue: '疲倦',
+        symNone: '無不適 ✓',
+        sec2MoodTitle: '2. 今日心情感受',
+        moodGreat: '非常好',
+        moodGood: '良好',
+        moodOkay: '一般',
+        moodLowShort: '低落',
+        moodUnwell: '不適',
+        btnAskAiSummary: 'AI 語音總結',
+        btnSaveTodaysLog: '儲存今日紀錄',
+        aiInsightQuote: '「過去一星期錄得 3 次早晨收縮壓偏高 (>135 mmHg)，並伴隨輕微頭暈；晚間血壓則維持平穩。」',
+        optWeek: '過去 7 天 ▾',
+        optMonth: '過去 30 天 ▾',
+        lastUpdated: '最後更新：今天 09:30',
+        bpTrendTitle: '血壓趨勢走勢圖',
+        sysLbl: '收縮壓',
+        diaLbl: '舒張壓',
+        topSymTitle: '本週常見症狀統計',
+        apptTitle: '醫療預約管理',
+        apptSub: '醫管局覆診及診所日程',
+        addApptBtn: '+ 新增預約',
+        haGoBannerTitle: '醫院系統同步 — HA Go',
+        haGoBannerSub: '一鍵匯入醫管局專科門診及抽血排期',
+        syncHaGoBtn: '從 HA Go 同步',
+        editApptBtn: '編輯',
+        cancelApptBtn: '取消',
+        upcomingLbl: '即將到來的預約',
+        appt2Name: '社區復康中心 — 物理治療',
+        tagTherapy: '治療',
+        pastVisitsLbl: '過往看診紀錄',
+        pastApptName: '廣華醫院 — 高血壓例行覆診',
+        completedBadge: '已完成',
+        familyTitle: '家人健康共享',
+        familySub: '雙向照護與資料權限管理',
+        inviteBtn: '+ 邀請家人',
+        tabFromFamily: '接收家人資料',
+        tabMySharing: '我的共享設定',
+        famAlertDesc: '血壓 148/94 mmHg (偏高) · 10 分鐘前',
+        highBpBadge: '血壓偏高',
+        momName: '媽媽 (李秀英, 78歲)',
+        latestBpLbl: '最新血壓',
+        medStatusLbl: '服藥狀態',
+        morningTaken: '早藥已服用 ✓',
+        sendCareBtn: '發送關懷提醒',
+        dadName: '爸爸 (陳建國, 80歲)',
+        updatedToday: '更新於：今天 08:15',
+        normalBadge: '狀態正常',
+        viewDadLogBtn: '查看每日紀錄',
+        liveShareActive: '即時健康共享已開啟',
+        liveShareDesc: '已授權的家人與醫生可接收異常警示',
+        sonRecipient: '兒子 (Alex Chan)',
+        fullAccess: '緊急聯絡人 · 家庭照顧者',
+        activeBadge: '已授權',
+        shareVitalsLbl: '生理數據與用藥',
+        shareMoodLbl: '心情與備註',
+        allowedTxt: '已共享 ✓',
+        privateTxt: '不公開 🔒',
+        exportFamilyBtn: '匯出家庭健康報告',
+        sendUpdateNowBtn: '立即發送健康近況',
+        docRecipient: '黃醫生 (家庭醫生)',
+        vitalsOnly: '瑪麗醫院專科門診',
+        profileTitle: '個人中心與設定',
+        userNameFull: '陳秀芳女士 (68歲)',
+        userBio: '高血壓及糖尿病前期管理 · 血型 O+',
+        emergencyContact: '緊急聯絡人：兒子 Alex (9123-4567)',
+        conditionsTitle: '我的健康狀況',
+        conditionsMulti: '可多選',
+        conditionsSub: '請選擇所有適用項目，用於個人化提醒及臨床報告。',
+        condHypertension: '高血壓',
+        condDiabetes: '糖尿病',
+        condDepression: '抑鬱症',
+        condLongTerm: '長期病患',
+        wearablesTitle: '已連接穿戴裝置與外部 App',
+        syncAllNowBtn: '立即全部同步',
+        xiaomiWatchName: '小米智能手錶 / Mi Fitness',
+        autoSyncSub: '自動同步血壓、血糖與心率',
+        haGoAppName: 'HA Go 醫管局 App',
+        haGoProfileSub: '同步醫管局專科覆診排期',
+        appleHealthName: 'Apple Health 健康',
+        appleHealthSub: '日常活動與靜息心率備份',
+        dispLangLbl: '顯示語言',
+        elderFontLbl: '長者大字體模式',
+        navHome: '主頁',
+        navHealth: '健康',
+        navAskAi: '問康伴',
+        navAppts: '預約',
+        navFamily: '共享',
+        aiModalTitle: 'AI 語音助手「問康伴」',
+        aiOnlineSub: '支援廣東話及英語語音自動建檔',
+        aiGreeting: '陳女士你好！點擊下方麥克風，直接說出你的血壓、症狀及服藥情況即可自動記錄。',
+        docPortalTag: '醫生臨床摘要視圖 · 黃醫生',
+        docPatientHeader: '患者：陳女士 (68歲 · 高血壓)',
+        docTriageTitle: '過去 7 日 AI 臨床重點摘要',
+        docReviewFlag: '重點關注',
+        docBullet1: '錄得 3 次晨間收縮壓偏高 (>135 mmHg)：最高為 11月16日 142/92 mmHg，並伴隨患者主訴頭暈。',
+        docBullet2: '92% 按時服藥依從性：Amlodipine 5mg 規律服用；剩餘 6 日藥量（建議安排配藥）。',
+        docBullet3: '7 日平均生理指標：平均血壓 129/83 mmHg · 靜息心率 72 bpm · 空腹血糖 5.8 mmol/L。',
+        docChartTitle: '7 日臨床血壓走勢圖',
+        docThresholdLbl: '警戒線: 135/85 mmHg',
+        docMedTableTitle: '目前處方藥物清單',
+        closeBtn: '關閉',
+        exportClinicalPdfBtn: '確認匯出'
+      }
+    };
+
+    function applyLanguage(lang) {
+      currentLang = lang;
+      const dict = i18nDict[lang];
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (dict[key]) {
+          el.innerText = dict[key];
+        }
+      });
+
+      const weekRow = document.getElementById('weekDaysRow');
+      if (weekRow) {
+        weekRow.innerHTML = lang === 'en'
+          ? '<span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>'
+          : '<span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>';
+      }
+
+      const calendarToggleText = document.getElementById('calendarToggleText');
+      const firstCalWeek = document.querySelector('.cal-week:not([data-preview-week])');
+      if (calendarToggleText && firstCalWeek) {
+        const isPreview = firstCalWeek.classList.contains('hidden');
+        calendarToggleText.innerText = dict[isPreview ? 'calExpand' : 'calCollapse'];
+      }
+
+      const chatInput = document.getElementById('chatInput');
+      if (chatInput) {
+        chatInput.placeholder = lang === 'en' ? 'Speak or type your vitals & symptoms...' : '點擊麥克風說話或輸入血壓與症狀...';
+      }
+
+      const langSelect = document.getElementById('langSelect');
+      if (langSelect) langSelect.value = lang;
+
+      // Refresh active calendar date text in current language
+      const activeDayBtn = document.querySelector('.cal-day-btn.bg-brand-600');
+      if (activeDayBtn) {
+        const day = parseInt(activeDayBtn.getAttribute('data-day'), 10);
+        updateHomeVitalsForDate(day);
+      }
+    }
+
+    function toggleLanguage() {
+      const nextLang = currentLang === 'en' ? 'zh-HK' : 'en';
+      applyLanguage(nextLang);
+      showToast(nextLang === 'en' ? 'Switched to English' : '已切換至繁體中文');
+    }
+
+    function changeLanguage(lang) {
+      applyLanguage(lang);
+      showToast(lang === 'en' ? 'Switched to English' : '已切換至繁體中文');
+    }
+
+    // ==================== CALENDAR INTERACTION & HISTORICAL INSPECTION ====================
+    function toggleCalendarView() {
+      const otherWeeks = document.querySelectorAll('.cal-week:not([data-preview-week])');
+      const toggleText = document.getElementById('calendarToggleText');
+      const toggleIcon = document.getElementById('calendarToggleIcon');
+      const isPreview = otherWeeks[0].classList.contains('hidden');
+
+      otherWeeks.forEach(week => week.classList.toggle('hidden', !isPreview));
+      toggleText.innerText = i18nDict[currentLang][isPreview ? 'calCollapse' : 'calExpand'];
+      toggleIcon.classList.replace(isPreview ? 'fa-chevron-down' : 'fa-chevron-up', isPreview ? 'fa-chevron-up' : 'fa-chevron-down');
+    }
+
+    function selectCalendarDate(day) {
+      const abnormalDays = [14, 16];
+      document.querySelectorAll('.cal-day-btn').forEach(btn => {
+        const d = parseInt(btn.getAttribute('data-day'), 10);
+        btn.classList.remove('bg-brand-600', 'text-white', 'shadow-sm', 'ring-2', 'ring-brand-600');
+        if (abnormalDays.includes(d)) {
+          btn.classList.add('bg-alert-100', 'text-alert-600', 'font-extrabold');
+        } else {
+          btn.classList.add('text-slate-800');
+        }
+      });
+
+      // Highlight selected date button(s)
+      document.querySelectorAll(`.cal-day-btn[data-day="${day}"]`).forEach(btn => {
+        if (abnormalDays.includes(day)) {
+          btn.classList.add('ring-2', 'ring-brand-600');
+        } else {
+          btn.classList.remove('text-slate-800', 'text-slate-700');
+          btn.classList.add('bg-brand-600', 'text-white', 'font-extrabold', 'shadow-sm');
+        }
+      });
+
+      updateHomeVitalsForDate(day);
+    }
+
+    function updateHomeVitalsForDate(day) {
+      const titleEl = document.getElementById('vitalsCardTitle');
+      const scoreBadge = document.getElementById('vitalsScoreBadge');
+      const bpEl = document.getElementById('homeBpDisplay');
+      const symEl = document.getElementById('homeSymptomDisplay');
+
+      const record = calendarHealthData[day] || {
+        dateLabelEn: `Nov ${day} Vitals`,
+        dateLabelZh: `11月${day}日 數據`,
+        scoreTextEn: 'Score: 90/100 · Good',
+        scoreTextZh: '評分: 90/100 · 狀態良好',
+        abnormal: false,
+        bp: '122 / 79 mmHg',
+        symEn: 'Feeling Good 😊',
+        symZh: '無特別不適 😊'
+      };
+
+      titleEl.innerText = currentLang === 'en' ? record.dateLabelEn : record.dateLabelZh;
+      scoreBadge.innerText = currentLang === 'en' ? record.scoreTextEn : record.scoreTextZh;
+      bpEl.innerText = record.bp;
+      symEl.innerText = currentLang === 'en' ? record.symEn : record.symZh;
+
+      if (record.abnormal) {
+        scoreBadge.className = 'mb-2.5 inline-block text-[11px] font-extrabold text-alert-700 bg-alert-50 border border-alert-200 px-2.5 py-1 rounded-full';
+        bpEl.className = 'font-extrabold text-alert-700 text-sm';
+        symEl.className = 'font-bold text-alert-700 text-xs';
+      } else {
+        scoreBadge.className = 'mb-2.5 inline-block text-[11px] font-extrabold text-brand-700 bg-brand-50 border border-brand-200 px-2.5 py-1 rounded-full';
+        bpEl.className = 'font-extrabold text-slate-900 text-sm';
+        symEl.className = 'font-bold text-brand-700 text-xs';
+      }
+
+    }
+
+    // ==================== PROFILE: HEALTH CONDITIONS ====================
+    function toggleConditionChip(chip) {
+      const willActivate = !chip.classList.contains('bg-brand-600');
+      chip.classList.toggle('bg-brand-600', willActivate);
+      chip.classList.toggle('text-white', willActivate);
+      chip.classList.toggle('font-extrabold', willActivate);
+      chip.classList.toggle('bg-brand-50/70', !willActivate);
+      chip.classList.toggle('text-slate-900', !willActivate);
+      chip.classList.toggle('font-bold', !willActivate);
+      showToast(currentLang === 'en' ? 'Health conditions updated' : '健康狀況已更新');
+    }
+
+    // ==================== TODAY'S TASKS ====================
+    function toggleTaskExpand(detailId, arrowId) {
+      document.getElementById(detailId).classList.toggle('hidden');
+      document.getElementById(arrowId).classList.toggle('rotate-180');
+    }
+
+    function toggleTask(checkbox) {
+      const text = checkbox.closest('label').querySelector('.task-text');
+      if (checkbox.checked) {
+        text.classList.add('line-through', 'opacity-60');
+      } else {
+        text.classList.remove('line-through', 'opacity-60');
+      }
+      updateTaskCount();
+    }
+
+    function updateTaskCount() {
+      const checkboxes = document.querySelectorAll('#taskList input[type="checkbox"]');
+      const checked = Array.from(checkboxes).filter(c => c.checked).length;
+      const badge = document.getElementById('taskProgressBadge');
+      if (badge) {
+        badge.innerText = currentLang === 'en' ? `${checked}/${checkboxes.length} Done` : `${checked}/${checkboxes.length} 完成`;
+      }
+    }
+
+    function addNewQuickTask() {
+      const list = document.getElementById('taskList');
+      const taskTitle = currentLang === 'en' ? 'Evening Walk 20 mins (18:30)' : '晚飯後散步 20 分鐘 (18:30)';
+      const html = `
+        <div class="task-item bg-brand-50/70 rounded-xl border border-brand-100 overflow-hidden transition">
+          <div class="p-3 flex items-center justify-between cursor-pointer hover:bg-brand-100 transition">
+            <label class="flex items-center space-x-3 cursor-pointer flex-1">
+              <input type="checkbox" onchange="toggleTask(this)" class="w-5 h-5 rounded border-brand-200 text-brand-600 accent-brand-600 cursor-pointer">
+              <span class="text-sm font-semibold text-slate-900 task-text">${taskTitle}</span>
+            </label>
+            <span class="text-xs font-bold text-brand-700 bg-white px-2.5 py-1 rounded-lg border border-brand-100">18:30</span>
+          </div>
+        </div>`;
+      list.insertAdjacentHTML('beforeend', html);
+      updateTaskCount();
+      showToast(currentLang === 'en' ? 'Added evening walk task!' : '已新增晚間散步待辦！');
+    }
+
+    function toggleMedTracking() {
+      document.getElementById('medContent').classList.toggle('hidden');
+      document.getElementById('medArrow').classList.toggle('rotate-180');
+    }
+
+    // ==================== DAILY LOG (SINGLE-SCROLL + XIAOMI SYNC) ====================
+    function syncFromWearable() {
+      document.getElementById('inputSystolic').value = 124;
+      document.getElementById('inputDiastolic').value = 80;
+      document.getElementById('inputSugar').value = 5.8;
+      document.getElementById('inputHr').value = 72;
+
+      ['inputSystolic', 'inputDiastolic', 'inputSugar', 'inputHr'].forEach(id => {
+        const el = document.getElementById(id);
+        el.classList.add('bg-brand-50', 'border-brand-600');
+      });
+
+      document.getElementById('wearableSyncBadge').classList.remove('hidden');
+      const now = new Date();
+      const timeStr = now.toTimeString().slice(0, 5);
+      document.getElementById('wearableSyncSub').innerText = currentLang === 'en'
+        ? `Synced from Xiaomi Watch at ${timeStr}`
+        : `已於 ${timeStr} 從小米手錶同步`;
+
+      showToast(currentLang === 'en' ? `Synced from Mi Fitness (${timeStr})!` : `已從小米運動健康同步數據 (${timeStr})！`);
+    }
+
+    function toggleSymptomChip(btn, symName) {
+      const container = document.getElementById('symptomChipsContainer');
+      const allChips = container.querySelectorAll('.sym-chip');
+
+      if (symName === 'None') {
+        selectedSymptoms = ['None'];
+        allChips.forEach(c => {
+          c.className = 'sym-chip text-xs font-bold px-3.5 py-2 rounded-xl border border-brand-200 bg-brand-50/70 text-slate-900 transition';
+        });
+        btn.className = 'sym-chip active-chip text-xs font-extrabold px-3.5 py-2 rounded-xl border border-brand-600 bg-brand-600 text-white transition';
+      } else {
+        // Deactivate 'None'
+        const noneBtn = allChips[allChips.length - 1];
+        noneBtn.className = 'sym-chip text-xs font-bold px-3.5 py-2 rounded-xl border border-brand-200 bg-brand-50/70 text-slate-900 transition';
+        selectedSymptoms = selectedSymptoms.filter(s => s !== 'None');
+
+        if (selectedSymptoms.includes(symName)) {
+          selectedSymptoms = selectedSymptoms.filter(s => s !== symName);
+          btn.className = 'sym-chip text-xs font-bold px-3.5 py-2 rounded-xl border border-brand-200 bg-brand-50/70 text-slate-900 transition';
+        } else {
+          selectedSymptoms.push(symName);
+          btn.className = 'sym-chip active-chip text-xs font-extrabold px-3.5 py-2 rounded-xl border border-brand-600 bg-brand-600 text-white transition';
+        }
+      }
+    }
+
+    function selectDailyMood(btn, emoji, label) {
+      document.querySelectorAll('.daily-mood-btn').forEach(b => {
+        b.classList.remove('bg-white', 'ring-2', 'ring-brand-600', 'shadow-sm');
+      });
+      btn.classList.add('bg-white', 'ring-2', 'ring-brand-600', 'shadow-sm');
+      selectedMood = { emoji, label };
+    }
+
+    function saveDailyLog() {
+      const sys = parseInt(document.getElementById('inputSystolic').value || '124', 10);
+      const dia = parseInt(document.getElementById('inputDiastolic').value || '80', 10);
+      const isAbnormal = sys >= 135 || dia >= 85;
+      const symText = selectedSymptoms.length === 0 || selectedSymptoms.includes('None')
+        ? `Feeling ${selectedMood.label} ${selectedMood.emoji}`
+        : selectedSymptoms.join(', ');
+
+      calendarHealthData[18] = {
+        dateLabelEn: "Today's Vitals",
+        dateLabelZh: '今日數據概覽',
+        scoreTextEn: isAbnormal ? 'Score: 68/100 · Attention Needed' : 'Score: 93/100 · Good',
+        scoreTextZh: isAbnormal ? '評分: 68/100 · 需多加留意' : '評分: 93/100 · 狀態良好',
+        abnormal: isAbnormal,
+        bp: `${sys} / ${dia} mmHg`,
+        symEn: symText,
+        symZh: symText
+      };
+
+      selectCalendarDate(18);
+      showToast(currentLang === 'en' ? `Saved Today's Log (${sys}/${dia} mmHg)!` : `已儲存今日紀錄 (${sys}/${dia} mmHg)！`);
+    }
+
+    function updateTrendChartRange(range) {
+      const sysPoly = document.getElementById('sysPolyline');
+      if (range === '30d') {
+        sysPoly.setAttribute('points', '40,38 80,28 120,42 160,30 200,36 240,25 280,35');
+        showToast(currentLang === 'en' ? 'Showing 30-day BP trends' : '已切換至過去 30 天血壓趨勢');
+      } else {
+        sysPoly.setAttribute('points', '40,45 80,22 120,50 160,20 200,45 240,35 280,42');
+        showToast(currentLang === 'en' ? 'Showing 7-day BP trends' : '已切換至過去 7 天血壓趨勢');
+      }
+    }
+
+    // ==================== ASK AI VOICE-TO-RECORD DEMO ====================
+    function openAiChatModal(context) {
+      document.getElementById('aiChatModal').classList.remove('hidden');
+      if (context) {
+        appendAiMessage(currentLang === 'en'
+          ? `Ready to assist with [${context}]. Tap the microphone below to log by voice!`
+          : `已準備好處理【${context}】。點擊下方麥克風即可語音建檔！`);
+      }
+    }
+
+    function closeAiChatModal() {
+      document.getElementById('aiChatModal').classList.add('hidden');
+    }
+
+    function simulateVoiceInputDemo() {
+      const box = document.getElementById('chatMessages');
+      const spokenText = currentLang === 'en'
+        ? '🎙️ "Felt a bit dizzy this morning, BP was 138 over 86, took my BP meds."'
+        : '🎙️ 「今朝起身有少少頭暈，量咗血壓係 138 除 86，食咗降壓藥啦。」';
+
+      // 1. User Spoken Bubble
+      box.insertAdjacentHTML('beforeend', `
+        <div class="flex justify-end">
+          <div class="bg-brand-600 text-white p-3 rounded-2xl max-w-[85%] shadow-sm font-medium leading-relaxed">
+            ${spokenText}
+          </div>
+        </div>
+      `);
+      box.scrollTop = box.scrollHeight;
+
+      // 2. AI Structured Medical Summary Card
+      setTimeout(() => {
+        const cardTitle = currentLang === 'en' ? 'AI Structured Medical Summary' : 'AI 結構化醫療紀錄解析';
+        const bpStatus = currentLang === 'en' ? '138 / 86 mmHg (Elevated)' : '138 / 86 mmHg (偏高)';
+        const symVal = currentLang === 'en' ? 'Dizziness' : '頭暈 (Dizziness)';
+        const medVal = currentLang === 'en' ? 'Amlodipine — Taken ✓' : 'Amlodipine — 已服用 ✓';
+        const confirmLabel = currentLang === 'en' ? 'Confirm & Save to Daily Log' : '確認並寫入今日紀錄';
+
+        box.insertAdjacentHTML('beforeend', `
+          <div class="flex space-x-2">
+            <div class="w-7 h-7 rounded-full bg-brand-600 text-white flex items-center justify-center shrink-0 text-xs mt-1">
+              <i class="fa-solid fa-wand-magic-sparkles"></i>
+            </div>
+            <div class="bg-white p-3.5 rounded-2xl border-2 border-brand-200 shadow-sm flex-1 space-y-2.5">
+              <div class="flex items-center justify-between border-b border-brand-100 pb-1.5">
+                <span class="font-extrabold text-brand-700 text-xs">${cardTitle}</span>
+                <span class="text-[10px] font-bold bg-brand-50 text-brand-700 px-2 py-0.5 rounded-full">Voice Parsed</span>
+              </div>
+              <div class="space-y-1.5 text-xs">
+                <div class="flex justify-between items-center bg-alert-50 border border-alert-200 px-2.5 py-1.5 rounded-xl">
+                  <span class="font-bold text-slate-700">BP:</span>
+                  <span class="font-extrabold text-alert-700">${bpStatus}</span>
+                </div>
+                <div class="flex justify-between items-center bg-brand-50 border border-brand-100 px-2.5 py-1.5 rounded-xl">
+                  <span class="font-bold text-slate-700">Symptom:</span>
+                  <span class="font-extrabold text-slate-900">${symVal}</span>
+                </div>
+                <div class="flex justify-between items-center bg-brand-50 border border-brand-100 px-2.5 py-1.5 rounded-xl">
+                  <span class="font-bold text-slate-700">Medication:</span>
+                  <span class="font-extrabold text-brand-700">${medVal}</span>
+                </div>
+              </div>
+              <button onclick="applyVoiceParsedLog()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-extrabold py-2.5 rounded-xl text-xs shadow-sm transition flex items-center justify-center gap-1.5">
+                <i class="fa-solid fa-check-circle"></i>
+                <span>${confirmLabel}</span>
+              </button>
+            </div>
+          </div>
+        `);
+        box.scrollTop = box.scrollHeight;
+      }, 450);
+    }
+
+    function applyVoiceParsedLog() {
+      // Update Daily Log inputs
+      document.getElementById('inputSystolic').value = 138;
+      document.getElementById('inputDiastolic').value = 86;
+
+      // Highlight Dizziness chip
+      const container = document.getElementById('symptomChipsContainer');
+      const chips = container.querySelectorAll('.sym-chip');
+      chips.forEach(c => {
+        c.className = 'sym-chip text-xs font-bold px-3.5 py-2 rounded-xl border border-brand-200 bg-brand-50/70 text-slate-900 transition';
+      });
+      if (chips[1]) {
+        chips[1].className = 'sym-chip active-chip text-xs font-extrabold px-3.5 py-2 rounded-xl border border-brand-600 bg-brand-600 text-white transition';
+      }
+      selectedSymptoms = ['Dizziness'];
+
+      // Update Today's Vitals on Home Page
+      calendarHealthData[18] = {
+        dateLabelEn: "Today's Vitals",
+        dateLabelZh: '今日數據概覽',
+        scoreTextEn: 'Score: 68/100 · Attention Needed',
+        scoreTextZh: '評分: 68/100 · 需多加留意',
+        abnormal: true,
+        bp: '138 / 86 mmHg',
+        symEn: 'Dizziness (Voice Logged)',
+        symZh: '頭暈 (語音已記錄)'
+      };
+      selectCalendarDate(18);
+
+      closeAiChatModal();
+      showToast(currentLang === 'en' ? 'Voice log saved: 138/86 mmHg & Dizziness!' : '語音紀錄已寫入：138/86 mmHg 及頭暈！');
+    }
+
+    function sendChatMessage() {
+      const input = document.getElementById('chatInput');
+      const text = input.value.trim();
+      if (!text) return;
+      const box = document.getElementById('chatMessages');
+      box.insertAdjacentHTML('beforeend', `<div class="flex justify-end"><div class="bg-brand-600 text-white p-3 rounded-2xl max-w-[80%] shadow-sm">${text}</div></div>`);
+      input.value = '';
+      setTimeout(() => {
+        appendAiMessage(currentLang === 'en'
+          ? 'Noted! I have logged your message into your daily health notes.'
+          : '收到！已將你的健康備註寫入今日紀錄。');
+      }, 350);
+    }
+
+    function appendAiMessage(msg) {
+      const box = document.getElementById('chatMessages');
+      box.insertAdjacentHTML('beforeend', `<div class="flex space-x-2"><div class="w-7 h-7 rounded-full bg-brand-600 text-white flex items-center justify-center shrink-0 text-xs"><i class="fa-solid fa-heart-pulse"></i></div><div class="bg-white p-3 rounded-2xl border border-brand-100 shadow-sm max-w-[85%] text-slate-900 space-y-1"><p class="font-bold text-brand-600 text-[11px]">CareMate AI:</p><p>${msg}</p></div></div>`);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    // ==================== HA GO HOSPITAL SYNC ====================
+    function syncFromHaGo() {
+      if (haGoSynced) {
+        showToast(currentLang === 'en' ? 'HA Go appointments already up to date!' : 'HA Go 預約已是最新狀態！');
+        return;
+      }
+      haGoSynced = true;
+      const container = document.getElementById('appointmentsContainer');
+      const haGoCards = `
+        <div class="p-3.5 bg-alert-50 rounded-2xl border border-alert-200 flex items-center justify-between" data-appt-card>
+          <div class="flex items-center space-x-3 min-w-0">
+            <div class="w-12 h-12 rounded-xl bg-alert-600 text-white flex flex-col items-center justify-center font-bold text-xs shrink-0">
+              <span>DEC</span>
+              <span class="text-base leading-none">02</span>
+            </div>
+            <div>
+              <span class="text-[10px] font-extrabold text-brand-700 bg-white border border-brand-200 px-2 py-0.5 rounded-full inline-block mb-1">Synced via HA Go</span>
+              <h4 class="text-sm font-extrabold text-slate-900">${currentLang === 'en' ? 'Queen Mary Hospital — Cardiology Follow-up' : '瑪麗醫院 — 心臟專科門診覆診'}</h4>
+              <p class="text-xs text-slate-600 mt-0.5"><i class="fa-regular fa-clock mr-1"></i>10:30 AM · Block K</p>
+            </div>
+          </div>
+          ${appointmentButtons()}
+        </div>
+        <div class="p-3.5 bg-brand-50 rounded-2xl border border-brand-200 flex items-center justify-between" data-appt-card>
+          <div class="flex items-center space-x-3 min-w-0">
+            <div class="w-12 h-12 rounded-xl bg-brand-600 text-white flex flex-col items-center justify-center font-bold text-xs shrink-0">
+              <span>DEC</span>
+              <span class="text-base leading-none">18</span>
+            </div>
+            <div>
+              <span class="text-[10px] font-extrabold text-brand-700 bg-white border border-brand-200 px-2 py-0.5 rounded-full inline-block mb-1">Synced via HA Go</span>
+              <h4 class="text-sm font-extrabold text-slate-900">${currentLang === 'en' ? 'General Outpatient Clinic — Fasting Blood Test' : '普通科門診 — 空腹抽血檢驗'}</h4>
+              <p class="text-xs text-slate-600 mt-0.5"><i class="fa-regular fa-clock mr-1"></i>08:45 AM · Lab Room 2</p>
+            </div>
+          </div>
+          ${appointmentButtons()}
+        </div>
+      `;
+      container.insertAdjacentHTML('afterbegin', haGoCards);
+
+      const statusText = document.getElementById('haGoStatusText');
+      if (statusText) {
+        statusText.innerText = currentLang === 'en' ? '2 Hospital Authority bookings imported ✓' : '已匯入 2 項醫管局預約 ✓';
+        statusText.classList.add('text-brand-700', 'font-bold');
+      }
+      showToast(currentLang === 'en' ? 'Imported 2 appointments from HA Go!' : '已從 HA Go 成功匯入 2 項醫院預約！');
+    }
+
+    function addManualAppointment() {
+      const container = document.getElementById('appointmentsContainer');
+      const card = `
+        <div class="p-3.5 bg-brand-50 rounded-2xl border border-brand-100 flex items-center justify-between" data-appt-card>
+          <div class="flex items-center space-x-3 min-w-0">
+            <div class="w-12 h-12 rounded-xl bg-brand-600 text-white flex flex-col items-center justify-center font-bold text-xs shrink-0">
+              <span>DEC</span>
+              <span class="text-base leading-none">24</span>
+            </div>
+            <div class="min-w-0">
+              <h4 class="text-sm font-extrabold text-slate-900 truncate">${currentLang === 'en' ? 'Dr. Wong Family Clinic — BP Review' : '黃醫生家庭診所 — 血壓覆檢'}</h4>
+              <p class="text-xs text-slate-600 mt-0.5 truncate"><i class="fa-regular fa-clock mr-1"></i>11:15 AM · Central</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-1.5 shrink-0">
+            <span class="text-xs font-bold text-brand-700 bg-white border border-brand-200 px-2.5 py-1 rounded-lg self-start">Clinic</span>
+            ${appointmentButtons()}
+          </div>
+        </div>`;
+      container.insertAdjacentHTML('beforeend', card);
+      showToast(currentLang === 'en' ? 'New clinic appointment added!' : '已新增診所預約！');
+    }
+
+    // ==================== IN-APPOINTMENT MANAGEMENT (EDIT / CANCEL) ====================
+    function appointmentButtons() {
+      return `
+        <div class="flex gap-1 shrink-0 self-start">
+          <button type="button" onclick="editAppointment(this)" class="text-[10px] font-bold px-2 py-1 rounded-lg border border-brand-200 bg-white text-brand-700">${currentLang === 'en' ? 'Edit' : '編輯'}</button>
+          <button type="button" onclick="cancelAppointment(this)" class="text-[10px] font-bold px-2 py-1 rounded-lg border border-alert-200 bg-white text-alert-700">${currentLang === 'en' ? 'Cancel' : '取消'}</button>
+        </div>`;
+    }
+
+    function editAppointment(btn) {
+      const card = btn.closest('[data-appt-card]');
+      if (!card) return;
+      const titleEl = card.querySelector('h4');
+      const metaEl = card.querySelector('p.text-slate-600');
+      const currentTitle = titleEl ? titleEl.innerText.trim() : '';
+      const currentMeta = metaEl ? metaEl.innerText.trim() : '';
+      const nextTitle = window.prompt(
+        currentLang === 'en' ? 'Edit appointment name:' : '編輯預約名稱：', currentTitle);
+      if (nextTitle === null) return;
+      const nextMeta = window.prompt(
+        currentLang === 'en' ? 'Edit date / time / place:' : '編輯日期／時間／地點：', currentMeta);
+      if (nextMeta === null) return;
+      if (titleEl) titleEl.innerText = nextTitle.trim() || currentTitle;
+      if (metaEl) {
+        metaEl.innerHTML = '';
+        const icon = document.createElement('i');
+        icon.className = 'fa-regular fa-clock mr-1';
+        metaEl.appendChild(icon);
+        metaEl.appendChild(document.createTextNode(' ' + nextMeta.trim()));
+      }
+      showToast(currentLang === 'en' ? 'Appointment updated!' : '預約已更新！');
+    }
+
+    function cancelAppointment(btn) {
+      const card = btn.closest('[data-appt-card]');
+      if (!card) return;
+      if (!window.confirm(currentLang === 'en'
+        ? 'Cancel this appointment? It will be removed from your list.'
+        : '取消這個預約？它會從你的清單中移除。')) return;
+      card.remove();
+      showToast(currentLang === 'en' ? 'Appointment cancelled.' : '預約已取消。');
+    }
+
+    // ==================== DOCTOR CLINICAL AI SUMMARY MODAL ====================
+    function openDoctorSummaryModal() {
+      document.getElementById('doctorSummaryModal').classList.remove('hidden');
+    }
+
+    function closeDoctorSummaryModal() {
+      document.getElementById('doctorSummaryModal').classList.add('hidden');
+    }
+
+    // ==================== NAVIGATION & PROFILE HELPERS ====================
+    function switchTab(tabId, subTab) {
+      document.querySelectorAll('.tab-page').forEach(page => page.classList.add('hidden'));
+      const targetPage = document.getElementById(`page-${tabId}`);
+      if (targetPage) targetPage.classList.remove('hidden');
+
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('text-brand-600');
+        btn.classList.add('text-slate-500');
+        const iconContainer = btn.querySelector('div');
+        if (iconContainer) iconContainer.classList.remove('bg-brand-50');
+      });
+
+      const topProfileBtn = document.getElementById('top-profile-btn');
+      if (tabId === 'profile') {
+        topProfileBtn.classList.add('ring-2', 'ring-brand-600', 'bg-brand-100');
+      } else {
+        topProfileBtn.classList.remove('ring-2', 'ring-brand-600', 'bg-brand-100');
+      }
+
+      const activeNav = document.getElementById(`nav-${tabId}`);
+      if (activeNav) {
+        activeNav.classList.remove('text-slate-500');
+        activeNav.classList.add('text-brand-600');
+        const iconContainer = activeNav.querySelector('div');
+        if (iconContainer) iconContainer.classList.add('bg-brand-50');
+      }
+
+      if (tabId === 'health' && subTab) {
+        switchHealthSubTab(subTab);
+      }
+    }
+
+    function switchHealthSubTab(view) {
+      const logView = document.getElementById('health-view-log');
+      const trendsView = document.getElementById('health-view-trends');
+      const btnLog = document.getElementById('subtab-health-log');
+      const btnTrends = document.getElementById('subtab-health-trends');
+
+      if (view === 'log') {
+        logView.classList.remove('hidden');
+        trendsView.classList.add('hidden');
+        btnLog.className = 'py-2.5 rounded-xl text-xs font-extrabold bg-brand-600 text-white shadow-sm hover:bg-brand-700 transition flex items-center justify-center gap-1.5';
+        btnTrends.className = 'py-2.5 rounded-xl text-xs font-bold text-slate-700 hover:bg-brand-100 transition flex items-center justify-center gap-1.5';
+      } else {
+        logView.classList.add('hidden');
+        trendsView.classList.remove('hidden');
+        btnTrends.className = 'py-2.5 rounded-xl text-xs font-extrabold bg-brand-600 text-white shadow-sm hover:bg-brand-700 transition flex items-center justify-center gap-1.5';
+        btnLog.className = 'py-2.5 rounded-xl text-xs font-bold text-slate-700 hover:bg-brand-100 transition flex items-center justify-center gap-1.5';
+      }
+    }
+
+    function switchFamilySubTab(view) {
+      const receiveView = document.getElementById('family-view-receive');
+      const sendView = document.getElementById('family-view-send');
+      const btnReceive = document.getElementById('subtab-family-receive');
+      const btnSend = document.getElementById('subtab-family-send');
+
+      if (view === 'receive') {
+        receiveView.classList.remove('hidden');
+        sendView.classList.add('hidden');
+        btnReceive.className = 'py-2.5 rounded-xl text-xs font-extrabold bg-brand-600 text-white shadow-sm hover:bg-brand-700 transition flex items-center justify-center gap-1.5';
+        btnSend.className = 'py-2.5 rounded-xl text-xs font-bold text-slate-700 hover:bg-brand-100 transition flex items-center justify-center gap-1.5';
+      } else {
+        receiveView.classList.add('hidden');
+        sendView.classList.remove('hidden');
+        btnSend.className = 'py-2.5 rounded-xl text-xs font-extrabold bg-brand-600 text-white shadow-sm hover:bg-brand-700 transition flex items-center justify-center gap-1.5';
+        btnReceive.className = 'py-2.5 rounded-xl text-xs font-bold text-slate-700 hover:bg-brand-100 transition flex items-center justify-center gap-1.5';
+      }
+    }
+
+    function syncAllDevicesProfile() {
+      syncFromWearable();
+      if (!haGoSynced) syncFromHaGo();
+      showToast(currentLang === 'en' ? 'All devices & apps synced!' : '所有裝置與醫院系統已同步！');
+    }
+
+    function toggleElderMode(checkbox) {
+      if (checkbox.checked) {
+        document.body.classList.add('text-lg');
+        showToast(currentLang === 'en' ? 'Senior Large Text Mode ON' : '已開啟長者大字體模式');
+      } else {
+        document.body.classList.remove('text-lg');
+        showToast(currentLang === 'en' ? 'Standard Text Restored' : '已恢復標準字體');
+      }
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      if (!toast) return;
+      const toastMsg = document.getElementById('toastMsg');
+      if (toastMsg) toastMsg.innerText = message;
+      toast.classList.remove('opacity-0', 'pointer-events-none');
+      toast.classList.add('opacity-100');
+      setTimeout(() => {
+        toast.classList.remove('opacity-100');
+        toast.classList.add('opacity-0', 'pointer-events-none');
+      }, 2400);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      applyLanguage('en');
+    });
+  </script>
+</body>
+</html>
