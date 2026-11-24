@@ -1391,6 +1391,7 @@
 
     let todayTaskHtml = '';
     const userTaskHtmls = [];
+    const appointmentTasksByKey = {};
     let currentCalendarDay = 18;
 
     const i18nDict = {
@@ -1831,15 +1832,19 @@
       updateTaskCount();
     }
 
-    function addAppointmentReminderToToday(title, time) {
-      const needle = `>${escapeHtml(title)}</span>`;
-      if (userTaskHtmls.some(html => html.includes(needle))) return;
-      insertTaskItem(title, time, true);
-    }
-
-    function syncAppointmentReminderToTasks(day, task) {
+    function syncAppointmentReminderToTasks(day, task, month) {
       const numericDay = parseInt(day, 10);
       if (!numericDay) return;
+
+      // Only November dates exist in this calendar. Other months are stored
+      // by MM-DD so the reminder is tied to its real date, never to today.
+      if (month && !month.startsWith('NOV')) {
+        const key = `${month}-${String(numericDay).padStart(2, '0')}`;
+        const bucket = appointmentTasksByKey[key] || (appointmentTasksByKey[key] = []);
+        if (!bucket.some(item => item.en === task.en)) bucket.unshift(task);
+        return;
+      }
+
       const list = tasksByDate[numericDay] || (tasksByDate[numericDay] = []);
       if (!list.some(item => item.en === task.en)) list.unshift(task);
       if (currentCalendarDay === numericDay) renderTasksForDate(numericDay);
@@ -2551,19 +2556,14 @@
         time: '10:30',
         done: false,
         appt: true
-      });
-      addAppointmentReminderToToday(
-        currentLang === 'en'
-          ? 'Hospital Appointment — Cardiology Follow-up (NOV 30)'
-          : '醫院預約 — 心臟專科覆診 (NOV 30)',
-        '10:30'
-      );
-      addAppointmentReminderToToday(
-        currentLang === 'en'
-          ? 'General Outpatient Clinic — Fasting Blood Test (DEC 18)'
-          : '普通科門診 — 空腹抽血檢驗 (DEC 18)',
-        '08:45'
-      );
+      }, 'NOV');
+      syncAppointmentReminderToTasks(18, {
+        en: 'General Outpatient Clinic — Fasting Blood Test',
+        zh: '普通科門診 — 空腹抽血檢驗',
+        time: '08:45',
+        done: false,
+        appt: true
+      }, 'DEC');
 
       const statusText = document.getElementById('haGoStatusText');
       if (statusText) {
@@ -2571,8 +2571,8 @@
         statusText.classList.add('text-brand-700', 'font-bold');
       }
       showToast(currentLang === 'en'
-        ? 'Imported 2 HA Go appointments — Nov 30 reminder synced to to-dos!'
-        : '已匯入 2 項 HA Go 預約 — 11月30日提醒已同步至待辦！');
+        ? 'Imported 2 HA Go appointments — reminders synced to their dates!'
+        : '已匯入 2 項 HA Go 預約 — 提醒已同步至各日期！');
     }
 
     function addManualAppointment() {
@@ -2582,10 +2582,10 @@
         confirmLabel: currentLang === 'en' ? 'Add Appointment' : '新增',
         fields: [
           { label: currentLang === 'en' ? 'Appointment name' : '預約名稱', value: defName },
-          { label: currentLang === 'en' ? 'Date (e.g. Dec 24)' : '日期（例如 Dec 24）', value: 'Dec 24' },
+          { label: currentLang === 'en' ? 'Date (e.g. Nov 30)' : '日期（例如 Nov 30）', value: 'Nov 30' },
           {
             label: currentLang === 'en' ? 'Time & place' : '時間及地點',
-            value: currentLang === 'en' ? '11:15 AM · Central' : '11:15 AM · 中環'
+            value: currentLang === 'en' ? '10:30 AM · Queen Mary Hospital' : '10:30 AM · 瑪麗醫院'
           }
         ],
         onSubmit: values => insertAppointment(values[0], values[1], values[2])
@@ -2620,23 +2620,20 @@
       container.insertAdjacentHTML('beforeend', card);
       const timeMatch = finalMeta.match(/\b(\d{1,2}[:.]\d{2})\b/);
       const time = timeMatch ? timeMatch[1] : 'TBC';
-      const dateLabel = `${month} ${day}`;
 
-      // Every appointment added here immediately syncs into the to-do list.
-      addAppointmentReminderToToday(`${finalName} (${dateLabel})`, time);
+      // Appointment reminder belongs to its own date, never to today's list.
+      syncAppointmentReminderToTasks(day, {
+        en: finalName,
+        zh: finalName,
+        time,
+        done: false,
+        appt: true
+      }, month);
 
-      if (month.startsWith('NOV')) {
-        syncAppointmentReminderToTasks(day, {
-          en: finalName,
-          zh: finalName,
-          time,
-          done: false,
-          appt: true
-        });
-      }
+      if (month.startsWith('NOV')) selectCalendarDate(Number(day));
       showToast(currentLang === 'en'
-        ? 'Appointment added & synced to to-dos!'
-        : '預約已新增並同步至待辦！');
+        ? `Appointment added — reminder synced to ${month} ${day} to-dos!`
+        : `預約已新增 — 提醒已同步至 ${month} ${day} 的待辦！`);
     }
 
     // ==================== IN-APPOINTMENT MANAGEMENT (EDIT / CANCEL) ====================
