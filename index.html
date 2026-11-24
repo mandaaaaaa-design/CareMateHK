@@ -215,7 +215,7 @@
         <section class="bg-white border border-brand-100 rounded-2xl p-4 custom-shadow">
           <div class="flex justify-between items-center mb-3.5">
             <div class="flex items-center space-x-2">
-              <h2 class="text-lg font-extrabold text-slate-900 tracking-tight" data-i18n="todayTasks">Today's Tasks</h2>
+              <h2 id="todayTasksTitle" class="text-lg font-extrabold text-slate-900 tracking-tight" data-i18n="todayTasks">Today's Tasks</h2>
               <span id="taskProgressBadge" class="text-xs bg-brand-50 text-brand-700 font-bold px-2.5 py-0.5 rounded-full border border-brand-100" data-i18n="taskProgress">1/2 Done</span>
             </div>
             <button onclick="addNewQuickTask()" class="w-8 h-8 rounded-full bg-brand-600 text-white flex items-center justify-center shadow-sm hover:bg-brand-700 transition">
@@ -699,21 +699,21 @@
                   <h3 class="text-sm font-extrabold text-slate-900" data-i18n="momName">Mom (Sau-Ying Li, 78)</h3>
                   <div class="flex items-center gap-1">
                     <i class="fa-solid fa-triangle-exclamation text-alert-600 text-[11px] shrink-0"></i>
-                    <span class="text-[11px] text-alert-700 font-bold" data-i18n="famAlertDesc">148/94 mmHg (High) · 10 mins ago</span>
+                    <span id="famMomAlert" class="text-[11px] text-alert-700 font-bold" data-i18n="famAlertDesc">148/94 mmHg (High) · 10 mins ago</span>
                   </div>
                 </div>
               </div>
-              <span class="text-[10px] px-2.5 py-1 bg-alert-50 border border-alert-200 text-alert-700 font-extrabold rounded-full" data-i18n="highBpBadge">High BP</span>
+              <span id="famMomBadge" class="text-[10px] px-2.5 py-1 bg-alert-50 border border-alert-200 text-alert-700 font-extrabold rounded-full" data-i18n="highBpBadge">High BP</span>
             </div>
 
             <div class="grid grid-cols-2 gap-2.5 text-xs">
               <div class="bg-brand-50 p-2.5 rounded-xl border border-brand-100">
                 <span class="text-slate-500 text-[10px] block" data-i18n="latestBpLbl">Latest BP</span>
-                <p class="font-extrabold text-alert-700 mt-0.5">145 / 92 mmHg</p>
+                <p id="famMomBp" class="font-extrabold text-alert-700 mt-0.5">145 / 92 mmHg</p>
               </div>
               <div class="bg-brand-50 p-2.5 rounded-xl border border-brand-100">
                 <span class="text-slate-500 text-[10px] block" data-i18n="medStatusLbl">Medication</span>
-                <p class="font-extrabold text-brand-700 mt-0.5" data-i18n="morningTaken">Morning Taken ✓</p>
+                <p id="famMomMed" class="font-extrabold text-brand-700 mt-0.5" data-i18n="morningTaken">Morning Taken ✓</p>
               </div>
             </div>
             
@@ -729,20 +729,20 @@
                 <div class="w-10 h-10 rounded-full bg-brand-50 border border-brand-200 text-brand-700 flex items-center justify-center font-extrabold text-sm">D</div>
                 <div>
                   <h3 class="text-sm font-extrabold text-slate-900" data-i18n="dadName">Dad (Kin-Kwok Chan, 80)</h3>
-                  <span class="text-[11px] text-slate-500" data-i18n="updatedToday">Updated: Today 08:15</span>
+                  <span id="famDadUpdate" class="text-[11px] text-slate-500" data-i18n="updatedToday">Updated: Today 08:15</span>
                 </div>
               </div>
-              <span class="text-[10px] px-2.5 py-1 bg-brand-50 border border-brand-200 text-brand-700 font-bold rounded-full" data-i18n="normalBadge">Normal</span>
+              <span id="famDadBadge" class="text-[10px] px-2.5 py-1 bg-brand-50 border border-brand-200 text-brand-700 font-bold rounded-full" data-i18n="normalBadge">Normal</span>
             </div>
 
             <div class="grid grid-cols-2 gap-2.5 text-xs">
               <div class="bg-brand-50 p-2.5 rounded-xl border border-brand-100">
                 <span class="text-slate-500 text-[10px] block" data-i18n="latestBpLbl">Latest BP</span>
-                <p class="font-extrabold text-slate-900 mt-0.5">122 / 78 mmHg</p>
+                <p id="famDadBp" class="font-extrabold text-slate-900 mt-0.5">122 / 78 mmHg</p>
               </div>
               <div class="bg-brand-50 p-2.5 rounded-xl border border-brand-100">
                 <span class="text-slate-500 text-[10px] block" data-i18n="medStatusLbl">Medication</span>
-                <p class="font-extrabold text-brand-700 mt-0.5" data-i18n="morningTaken">Morning Taken ✓</p>
+                <p id="famDadMed" class="font-extrabold text-brand-700 mt-0.5" data-i18n="morningTaken">Morning Taken ✓</p>
               </div>
             </div>
 
@@ -761,11 +761,11 @@
                 <i class="fa-solid fa-tower-broadcast text-sm"></i>
               </div>
               <div>
-                <h4 class="text-xs font-extrabold text-slate-900" data-i18n="liveShareActive">Live Health Sharing is ON</h4>
+                <h4 id="liveShareTitle" class="text-xs font-extrabold text-slate-900" data-i18n="liveShareActive">Live Health Sharing is ON</h4>
                 <p class="text-[11px] text-slate-500 mt-0.5" data-i18n="liveShareDesc">Authorized recipients receive real-time alerts</p>
               </div>
             </div>
-            <input type="checkbox" checked onchange="showToast(currentLang==='en' ? 'Live sharing updated' : '即時共享狀態已更新')" class="w-5 h-5 accent-brand-600 cursor-pointer shrink-0">
+            <input type="checkbox" checked onchange="handleLiveShareToggle(this)" class="w-5 h-5 accent-brand-600 cursor-pointer shrink-0">
           </div>
 
           <!-- Card A: Son (Alex) -->
@@ -785,17 +785,17 @@
               <label class="bg-brand-50 p-2.5 rounded-xl border border-brand-100 flex items-center justify-between cursor-pointer">
                 <div>
                   <span class="text-slate-500 text-[10px] block" data-i18n="shareVitalsLbl">Vitals & Meds</span>
-                  <span class="font-extrabold text-slate-900 mt-0.5 block" data-i18n="allowedTxt">Shared ✓</span>
+                  <span id="shareSonVitalsStatus" class="font-extrabold text-slate-900 mt-0.5 block" data-i18n="allowedTxt">Shared ✓</span>
                 </div>
-                <input type="checkbox" checked onchange="showToast('Permission updated')" class="w-4 h-4 accent-brand-600">
+                <input type="checkbox" checked onchange="handleShareToggle(this, 'shareSonVitalsStatus', 'Vitals & Meds', '血壓與藥物', 'Alex', 'Alex')" class="w-4 h-4 accent-brand-600">
               </label>
 
               <label class="bg-brand-50 p-2.5 rounded-xl border border-brand-100 flex items-center justify-between cursor-pointer">
                 <div>
                   <span class="text-slate-500 text-[10px] block" data-i18n="shareMoodLbl">Mood & Notes</span>
-                  <span class="font-extrabold text-slate-900 mt-0.5 block" data-i18n="allowedTxt">Shared ✓</span>
+                  <span id="shareSonMoodStatus" class="font-extrabold text-slate-900 mt-0.5 block" data-i18n="allowedTxt">Shared ✓</span>
                 </div>
-                <input type="checkbox" checked onchange="showToast('Permission updated')" class="w-4 h-4 accent-brand-600">
+                <input type="checkbox" checked onchange="handleShareToggle(this, 'shareSonMoodStatus', 'Mood & Notes', '情緒及筆記', 'Alex', 'Alex')" class="w-4 h-4 accent-brand-600">
               </label>
             </div>
 
@@ -828,17 +828,17 @@
               <label class="bg-brand-50 p-2.5 rounded-xl border border-brand-100 flex items-center justify-between cursor-pointer">
                 <div>
                   <span class="text-slate-500 text-[10px] block" data-i18n="shareVitalsLbl">Vitals & Meds</span>
-                  <span class="font-extrabold text-slate-900 mt-0.5 block" data-i18n="allowedTxt">Shared ✓</span>
+                  <span id="shareDocVitalsStatus" class="font-extrabold text-slate-900 mt-0.5 block" data-i18n="allowedTxt">Shared ✓</span>
                 </div>
-                <input type="checkbox" checked onchange="showToast('Permission updated')" class="w-4 h-4 accent-brand-600">
+                <input type="checkbox" checked onchange="handleShareToggle(this, 'shareDocVitalsStatus', 'Vitals & Meds', '血壓與藥物', 'Dr. Wong', '黃醫生')" class="w-4 h-4 accent-brand-600">
               </label>
 
               <label class="bg-brand-50 p-2.5 rounded-xl border border-brand-100 flex items-center justify-between cursor-pointer">
                 <div>
                   <span class="text-slate-500 text-[10px] block" data-i18n="shareMoodLbl">Mood & Notes</span>
-                  <span class="font-extrabold text-slate-500 mt-0.5 block" data-i18n="privateTxt">Private 🔒</span>
+                  <span id="docMoodStatus" class="font-extrabold text-slate-500 mt-0.5 block" data-i18n="privateTxt">Private 🔒</span>
                 </div>
-                <input type="checkbox" onchange="showToast('Permission updated')" class="w-4 h-4 accent-brand-600">
+                <input id="docMoodToggle" type="checkbox" onchange="handleDoctorMoodShare(this)" class="w-4 h-4 accent-brand-600">
               </label>
             </div>
 
@@ -1304,6 +1304,95 @@
       }
     };
 
+    // Date-specific demo data: past dates show that date's to-dos and family snapshot.
+    const tasksByDate = {
+      14: [
+        { en: 'Measure Blood Pressure', zh: '量血壓', time: '09:00', done: true },
+        { en: 'Take Medication', zh: '服藥', time: '12:00', done: true },
+        { en: 'Afternoon Walk', zh: '下午散步', time: '16:30', done: false }
+      ],
+      15: [
+        { en: 'Measure Blood Pressure', zh: '量血壓', time: '09:00', done: true },
+        { en: 'Take Medication', zh: '服藥', time: '12:00', done: true },
+        { en: 'Evening Walk', zh: '晚間散步', time: '18:30', done: true }
+      ],
+      16: [
+        { en: 'Measure Blood Pressure', zh: '量血壓', time: '09:00', done: true },
+        { en: 'Take Medication', zh: '服藥', time: '12:00', done: false },
+        { en: 'Rest & Hydrate', zh: '休息及補充水份', time: '15:00', done: false }
+      ],
+      17: [
+        { en: 'Measure Blood Pressure', zh: '量血壓', time: '09:00', done: true },
+        { en: 'Take Medication', zh: '服藥', time: '12:00', done: true },
+        { en: 'Evening Walk', zh: '晚間散步', time: '18:30', done: true }
+      ],
+      19: [
+        { en: 'Measure Blood Pressure', zh: '量血壓', time: '09:00', done: false },
+        { en: 'Take Medication', zh: '服藥', time: '12:00', done: false },
+        { en: 'Prep Dinner', zh: '準備晚餐', time: '17:30', done: false }
+      ],
+      20: [
+        { en: 'Measure Blood Pressure', zh: '量血壓', time: '09:00', done: false },
+        { en: 'Take Medication', zh: '服藥', time: '12:00', done: false }
+      ],
+      30: [
+        { en: 'Hospital Appointment — Cardiology Follow-up', zh: '醫院預約 — 心臟專科覆診', time: '10:30', done: false, appt: true },
+        { en: 'Measure Blood Pressure', zh: '量血壓', time: '09:00', done: true },
+        { en: 'Take Medication', zh: '服藥', time: '12:00', done: false }
+      ]
+    };
+
+    const familyByDate = {
+      14: {
+        momAlertEn: 'Nov 14 · 140/90 mmHg (High)', momAlertZh: '11月14日 · 140/90 mmHg（偏高）',
+        momBadgeEn: 'High BP', momBadgeZh: '血壓偏高', momBp: '140 / 90 mmHg',
+        momMedEn: 'Morning Taken ✓', momMedZh: '早上已服用 ✓',
+        dadUpdateEn: 'Updated: Nov 14 08:20', dadUpdateZh: '更新：11月14日 08:20',
+        dadBadgeEn: 'Normal', dadBadgeZh: '正常', dadBp: '134 / 84 mmHg',
+        dadMedEn: 'Morning Taken ✓', dadMedZh: '早上已服用 ✓',
+        scoreEn: 'Score 76/100 · Watch', scoreZh: '評分 76/100 · 留意',
+        noteEn: 'Mom had a mild BP elevation on this day.', noteZh: '媽媽當日血壓輕微偏高。',
+        symEn: 'Mild Headache', symZh: '輕微頭痛'
+      },
+      15: {
+        momAlertEn: 'Nov 15 · 136/86 mmHg (Stable)', momAlertZh: '11月15日 · 136/86 mmHg（穩定）',
+        momBadgeEn: 'Stable', momBadgeZh: '穩定', momBp: '136 / 86 mmHg',
+        momMedEn: 'Morning Taken ✓', momMedZh: '早上已服用 ✓',
+        dadUpdateEn: 'Updated: Nov 15 08:10', dadUpdateZh: '更新：11月15日 08:10',
+        dadBadgeEn: 'Normal', dadBadgeZh: '正常', dadBp: '126 / 81 mmHg',
+        dadMedEn: 'Morning Taken ✓', dadMedZh: '早上已服用 ✓',
+        scoreEn: 'Score 90/100 · Good', scoreZh: '評分 90/100 · 良好',
+        noteEn: 'Both family members were stable on this day.', noteZh: '兩位家人當日情況穩定。',
+        symEn: 'None reported', symZh: '沒有不適'
+      },
+      16: {
+        momAlertEn: 'Nov 16 · 148/94 mmHg (High)', momAlertZh: '11月16日 · 148/94 mmHg（偏高）',
+        momBadgeEn: 'High BP', momBadgeZh: '血壓偏高', momBp: '148 / 94 mmHg',
+        momMedEn: 'Morning Taken ✓', momMedZh: '早上已服用 ✓',
+        dadUpdateEn: 'Updated: Nov 16 08:30', dadUpdateZh: '更新：11月16日 08:30',
+        dadBadgeEn: 'Attention', dadBadgeZh: '需留意', dadBp: '142 / 92 mmHg',
+        dadMedEn: 'Not Taken', dadMedZh: '尚未服用',
+        scoreEn: 'Score 62/100 · Attention', scoreZh: '評分 62/100 · 需留意',
+        noteEn: 'Both records were flagged on this day.', noteZh: '兩位家人當日均發出警示。',
+        symEn: 'Dizziness + Headache', symZh: '頭暈及頭痛'
+      },
+      17: {
+        momAlertEn: 'Nov 17 · 132/82 mmHg (Stable)', momAlertZh: '11月17日 · 132/82 mmHg（穩定）',
+        momBadgeEn: 'Stable', momBadgeZh: '穩定', momBp: '132 / 82 mmHg',
+        momMedEn: 'Morning Taken ✓', momMedZh: '早上已服用 ✓',
+        dadUpdateEn: 'Updated: Nov 17 08:05', dadUpdateZh: '更新：11月17日 08:05',
+        dadBadgeEn: 'Normal', dadBadgeZh: '正常', dadBp: '121 / 78 mmHg',
+        dadMedEn: 'Morning Taken ✓', dadMedZh: '早上已服用 ✓',
+        scoreEn: 'Score 94/100 · Good', scoreZh: '評分 94/100 · 良好',
+        noteEn: 'All vitals returned to the normal range.', noteZh: '所有數據已回復正常範圍。',
+        symEn: 'None reported', symZh: '沒有不適'
+      }
+    };
+
+    let todayTaskHtml = '';
+    const userTaskHtmls = [];
+    let currentCalendarDay = 18;
+
     const i18nDict = {
       'en': {
         appName: 'CareMate',
@@ -1657,6 +1746,12 @@
         const day = parseInt(activeDayBtn.getAttribute('data-day'), 10);
         updateHomeVitalsForDate(day);
       }
+
+      // Re-render date-scoped to-dos and family snapshot after translation.
+      if (document.getElementById('taskList')) {
+        renderTasksForDate(currentCalendarDay);
+        updateFamilyForDate(currentCalendarDay);
+      }
     }
 
     function toggleLanguage() {
@@ -1682,7 +1777,133 @@
       toggleIcon.classList.replace(isPreview ? 'fa-chevron-down' : 'fa-chevron-up', isPreview ? 'fa-chevron-up' : 'fa-chevron-down');
     }
 
+    function getTasksForDate(day) {
+      if (tasksByDate[day]) return tasksByDate[day];
+      const record = calendarHealthData[day];
+      const calm = record && !record.abnormal;
+      return [
+        { en: 'Measure Blood Pressure', zh: '量血壓', time: '09:00', done: true },
+        { en: 'Take Medication', zh: '服藥', time: '12:00', done: !!calm },
+        { en: 'Evening Walk', zh: '晚間散步', time: '18:30', done: !!calm }
+      ];
+    }
+
+    function renderTasksForDate(day) {
+      const list = document.getElementById('taskList');
+      const title = document.getElementById('todayTasksTitle');
+      const badge = document.getElementById('taskProgressBadge');
+      const en = currentLang === 'en';
+
+      if (day === 18) {
+        list.innerHTML = todayTaskHtml + userTaskHtmls.join('');
+        if (title) {
+          title.setAttribute('data-i18n', 'todayTasks');
+          title.innerText = i18nDict[currentLang].todayTasks;
+        }
+      } else {
+        const tasks = getTasksForDate(day);
+        list.innerHTML = tasks.map((task, index) => {
+          const id = `day-${day}-${index}`;
+          return `
+            <div class="task-item bg-brand-50/70 rounded-xl border border-brand-100 overflow-hidden transition">
+              <div class="p-3 flex items-center justify-between cursor-pointer hover:bg-brand-100 transition" onclick="toggleTaskExpand('task-detail-${id}', 'task-arrow-${id}')">
+                <label class="flex items-center space-x-3 cursor-pointer flex-1" onclick="event.stopPropagation()">
+                  <input type="checkbox" ${task.done ? 'checked' : ''} onchange="toggleTask(this)" class="w-5 h-5 rounded border-brand-200 text-brand-600 accent-brand-600 cursor-pointer">
+                  <span class="text-sm font-semibold text-slate-900 task-text ${task.done ? 'line-through opacity-60' : ''}">${en ? task.en : task.zh}</span>
+                </label>
+                <div class="flex items-center space-x-2">
+                  ${task.appt ? `<span class="text-[10px] font-extrabold text-alert-700 bg-alert-50 border border-alert-200 px-2 py-0.5 rounded-lg">${en ? 'Hospital' : '醫院'}</span>` : ''}
+                  <span class="text-xs font-bold text-brand-700 bg-white px-2.5 py-1 rounded-lg border border-brand-100">${task.time}</span>
+                  <i id="task-arrow-${id}" class="fa-solid fa-chevron-down text-slate-500 text-xs transition-transform duration-200"></i>
+                </div>
+              </div>
+              <div id="task-detail-${id}" class="hidden px-4 pb-3 pt-2 border-t border-brand-100 bg-white text-xs space-y-1 text-slate-700">
+                <p><span class="font-bold text-slate-900">${en ? 'Note:' : '備註：'}</span> ${en ? `Archived to-do from Nov ${day}.` : `11月${day}日的存檔待辦。`}</p>
+              </div>
+            </div>`;
+        }).join('');
+        if (title) {
+          title.removeAttribute('data-i18n');
+          title.innerText = en ? `Nov ${day} Tasks` : `11月${day}日 待辦`;
+        }
+      }
+      if (badge) badge.removeAttribute('data-i18n');
+      updateTaskCount();
+    }
+
+    function addAppointmentReminderToToday(title, time) {
+      const needle = `>${escapeHtml(title)}</span>`;
+      if (userTaskHtmls.some(html => html.includes(needle))) return;
+      insertTaskItem(title, time, true);
+    }
+
+    function syncAppointmentReminderToTasks(day, task) {
+      const numericDay = parseInt(day, 10);
+      if (!numericDay) return;
+      const list = tasksByDate[numericDay] || (tasksByDate[numericDay] = []);
+      if (!list.some(item => item.en === task.en)) list.unshift(task);
+      if (currentCalendarDay === numericDay) renderTasksForDate(numericDay);
+    }
+
+    function getFamilyForDate(day) {
+      if (familyByDate[day]) return familyByDate[day];
+      if (day === 18) return {
+        momAlertEn: '148/94 mmHg (High) · 10 mins ago', momAlertZh: '148/94 mmHg（偏高）· 10分鐘前',
+        momBadgeEn: 'High BP', momBadgeZh: '血壓偏高', momBp: '145 / 92 mmHg',
+        momMedEn: 'Morning Taken ✓', momMedZh: '早上已服用 ✓',
+        dadUpdateEn: 'Updated: Today 08:15', dadUpdateZh: '更新：今日 08:15',
+        dadBadgeEn: 'Normal', dadBadgeZh: '正常', dadBp: '122 / 78 mmHg',
+        dadMedEn: 'Morning Taken ✓', dadMedZh: '早上已服用 ✓',
+        scoreEn: 'Score 88/100 · Good', scoreZh: '評分 88/100 · 良好',
+        noteEn: 'All recorded vitals are within the normal range today.',
+        noteZh: '今日所有血壓記錄均在正常範圍內。',
+        symEn: 'None reported', symZh: '沒有不適'
+      };
+      const record = calendarHealthData[day];
+      const abnormal = record && record.abnormal;
+      const en = currentLang === 'en';
+      return {
+        momAlertEn: `Nov ${day} · ${abnormal ? '144/92 mmHg (High)' : '132/82 mmHg (Stable)'}`,
+        momAlertZh: `11月${day}日 · ${abnormal ? '144/92 mmHg（偏高）' : '132/82 mmHg（穩定）'}`,
+        momBadgeEn: abnormal ? 'High BP' : 'Stable', momBadgeZh: abnormal ? '血壓偏高' : '穩定',
+        momBp: abnormal ? '144 / 92 mmHg' : '132 / 82 mmHg',
+        momMedEn: 'Morning Taken ✓', momMedZh: '早上已服用 ✓',
+        dadUpdateEn: `Updated: Nov ${day} 08:15`, dadUpdateZh: `更新：11月${day}日 08:15`,
+        dadBadgeEn: abnormal ? 'Attention' : 'Normal', dadBadgeZh: abnormal ? '需留意' : '正常',
+        dadBp: record ? record.bp : '124 / 80 mmHg',
+        dadMedEn: abnormal ? 'Not Taken' : 'Morning Taken ✓',
+        dadMedZh: abnormal ? '尚未服用' : '早上已服用 ✓',
+        scoreEn: abnormal ? 'Score 68/100 · Watch' : 'Score 90/100 · Good',
+        scoreZh: abnormal ? '評分 68/100 · 留意' : '評分 90/100 · 良好',
+        noteEn: abnormal ? 'Dad had an abnormal BP reading on this day.' : 'Family records were normal on this day.',
+        noteZh: abnormal ? '爸爸當日血壓讀數偏高。' : '家人當日紀錄正常。',
+        symEn: record ? (en ? record.symEn : record.symZh) : 'None reported',
+        symZh: record ? record.symZh : '沒有不適'
+      };
+    }
+
+    function updateFamilyForDate(day) {
+      const en = currentLang === 'en';
+      const d = getFamilyForDate(day);
+      const setText = (id, value, i18nKey) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.innerText = value;
+        if (i18nKey) el.setAttribute('data-i18n', i18nKey);
+        else el.removeAttribute('data-i18n');
+      };
+      setText('famMomAlert', en ? d.momAlertEn : d.momAlertZh, 'famAlertDesc');
+      setText('famMomBadge', en ? d.momBadgeEn : d.momBadgeZh, 'highBpBadge');
+      setText('famMomBp', d.momBp);
+      setText('famMomMed', en ? d.momMedEn : d.momMedZh, 'morningTaken');
+      setText('famDadUpdate', en ? d.dadUpdateEn : d.dadUpdateZh, 'updatedToday');
+      setText('famDadBadge', en ? d.dadBadgeEn : d.dadBadgeZh, 'normalBadge');
+      setText('famDadBp', d.dadBp);
+      setText('famDadMed', en ? d.dadMedEn : d.dadMedZh, 'morningTaken');
+    }
+
     function selectCalendarDate(day) {
+      currentCalendarDay = day;
       const abnormalDays = [14, 16];
       document.querySelectorAll('.cal-day-btn').forEach(btn => {
         const d = parseInt(btn.getAttribute('data-day'), 10);
@@ -1705,6 +1926,8 @@
       });
 
       updateHomeVitalsForDate(day);
+      renderTasksForDate(day);
+      updateFamilyForDate(day);
     }
 
     function updateHomeVitalsForDate(day) {
@@ -1774,6 +1997,7 @@
       const checked = Array.from(checkboxes).filter(c => c.checked).length;
       const badge = document.getElementById('taskProgressBadge');
       if (badge) {
+        badge.removeAttribute('data-i18n');
         badge.innerText = currentLang === 'en' ? `${checked}/${checkboxes.length} Done` : `${checked}/${checkboxes.length} 完成`;
       }
     }
@@ -1826,14 +2050,17 @@
     }
 
     let taskSeq = 3;
-    function insertTaskItem(title, time) {
+    function insertTaskItem(title, time, appt) {
       const list = document.getElementById('taskList');
       const id = taskSeq++;
       const safeTitle = escapeHtml(title);
       const safeTime = escapeHtml(time || '');
+      const apptBadge = appt
+        ? `<span class="text-[10px] font-extrabold text-alert-700 bg-alert-50 border border-alert-200 px-2 py-0.5 rounded-lg">${currentLang === 'en' ? 'Appt' : '預約'}</span>`
+        : '';
       const note = currentLang === 'en' ? 'Added by you' : '由你新增';
       const noteLbl = currentLang === 'en' ? 'Note:' : '備註：';
-      list.insertAdjacentHTML('beforeend', `
+      const html = `
         <div class="task-item bg-brand-50/70 rounded-xl border border-brand-100 overflow-hidden transition">
           <div class="p-3 flex items-center justify-between cursor-pointer hover:bg-brand-100 transition" onclick="toggleTaskExpand('task-detail-${id}', 'task-arrow-${id}')">
             <label class="flex items-center space-x-3 cursor-pointer flex-1" onclick="event.stopPropagation()">
@@ -1841,6 +2068,7 @@
               <span class="text-sm font-semibold text-slate-900 task-text">${safeTitle}</span>
             </label>
             <div class="flex items-center space-x-2">
+              ${apptBadge}
               ${safeTime ? `<span class="text-xs font-bold text-brand-700 bg-white px-2.5 py-1 rounded-lg border border-brand-100">${safeTime}</span>` : ''}
               <i id="task-arrow-${id}" class="fa-solid fa-chevron-down text-slate-500 text-xs transition-transform duration-200"></i>
             </div>
@@ -1848,7 +2076,9 @@
           <div id="task-detail-${id}" class="hidden px-4 pb-3 pt-2 border-t border-brand-100 bg-white text-xs space-y-1 text-slate-700">
             <p><span class="font-bold text-slate-900">${noteLbl}</span> ${note}</p>
           </div>
-        </div>`);
+        </div>`;
+      userTaskHtmls.push(html);
+      list.insertAdjacentHTML('beforeend', html);
       updateTaskCount();
     }
 
@@ -2286,8 +2516,8 @@
         <div class="p-3.5 bg-alert-50 rounded-2xl border border-alert-200 flex items-center justify-between" data-appt-card>
           <div class="flex items-center space-x-3 min-w-0">
             <div class="w-12 h-12 rounded-xl bg-alert-600 text-white flex flex-col items-center justify-center font-bold text-xs shrink-0">
-              <span>DEC</span>
-              <span class="text-base leading-none">02</span>
+              <span>NOV</span>
+              <span class="text-base leading-none">30</span>
             </div>
             <div>
               <span class="text-[10px] font-extrabold text-brand-700 bg-white border border-brand-200 px-2 py-0.5 rounded-full inline-block mb-1">Synced via HA Go</span>
@@ -2314,12 +2544,35 @@
       `;
       container.insertAdjacentHTML('afterbegin', haGoCards);
 
+      // Hospital bookings also become reminders in the to-do list.
+      syncAppointmentReminderToTasks(30, {
+        en: 'Hospital Appointment — Cardiology Follow-up',
+        zh: '醫院預約 — 心臟專科覆診',
+        time: '10:30',
+        done: false,
+        appt: true
+      });
+      addAppointmentReminderToToday(
+        currentLang === 'en'
+          ? 'Hospital Appointment — Cardiology Follow-up (NOV 30)'
+          : '醫院預約 — 心臟專科覆診 (NOV 30)',
+        '10:30'
+      );
+      addAppointmentReminderToToday(
+        currentLang === 'en'
+          ? 'General Outpatient Clinic — Fasting Blood Test (DEC 18)'
+          : '普通科門診 — 空腹抽血檢驗 (DEC 18)',
+        '08:45'
+      );
+
       const statusText = document.getElementById('haGoStatusText');
       if (statusText) {
         statusText.innerText = currentLang === 'en' ? '2 Hospital Authority bookings imported ✓' : '已匯入 2 項醫管局預約 ✓';
         statusText.classList.add('text-brand-700', 'font-bold');
       }
-      showToast(currentLang === 'en' ? 'Imported 2 appointments from HA Go!' : '已從 HA Go 成功匯入 2 項醫院預約！');
+      showToast(currentLang === 'en'
+        ? 'Imported 2 HA Go appointments — Nov 30 reminder synced to to-dos!'
+        : '已匯入 2 項 HA Go 預約 — 11月30日提醒已同步至待辦！');
     }
 
     function addManualAppointment() {
@@ -2344,6 +2597,8 @@
       const parts = (date || '').trim().split(/\s+/);
       const month = (parts[0] || 'DEC').toUpperCase().slice(0, 3);
       const day = (parts[1] || '24').replace(/\D/g, '').slice(0, 2) || '24';
+      const finalName = name.trim() || defName;
+      const finalMeta = meta.trim() || 'TBC';
       const container = document.getElementById('appointmentsContainer');
       const card = `
         <div class="p-3.5 bg-brand-50 rounded-2xl border border-brand-100 flex items-center justify-between" data-appt-card>
@@ -2353,8 +2608,8 @@
               <span class="text-base leading-none">${escapeHtml(day)}</span>
             </div>
             <div class="min-w-0">
-              <h4 class="text-sm font-extrabold text-slate-900 truncate">${escapeHtml(name.trim() || defName)}</h4>
-              <p class="text-xs text-slate-600 mt-0.5 truncate"><i class="fa-regular fa-clock mr-1"></i>${escapeHtml(meta.trim() || 'TBC')}</p>
+              <h4 class="text-sm font-extrabold text-slate-900 truncate">${escapeHtml(finalName)}</h4>
+              <p class="text-xs text-slate-600 mt-0.5 truncate"><i class="fa-regular fa-clock mr-1"></i>${escapeHtml(finalMeta)}</p>
             </div>
           </div>
           <div class="flex items-start gap-1.5 shrink-0">
@@ -2363,7 +2618,25 @@
           </div>
         </div>`;
       container.insertAdjacentHTML('beforeend', card);
-      showToast(currentLang === 'en' ? 'Appointment added!' : '預約已新增！');
+      const timeMatch = finalMeta.match(/\b(\d{1,2}[:.]\d{2})\b/);
+      const time = timeMatch ? timeMatch[1] : 'TBC';
+      const dateLabel = `${month} ${day}`;
+
+      // Every appointment added here immediately syncs into the to-do list.
+      addAppointmentReminderToToday(`${finalName} (${dateLabel})`, time);
+
+      if (month.startsWith('NOV')) {
+        syncAppointmentReminderToTasks(day, {
+          en: finalName,
+          zh: finalName,
+          time,
+          done: false,
+          appt: true
+        });
+      }
+      showToast(currentLang === 'en'
+        ? 'Appointment added & synced to to-dos!'
+        : '預約已新增並同步至待辦！');
     }
 
     // ==================== IN-APPOINTMENT MANAGEMENT (EDIT / CANCEL) ====================
@@ -2420,33 +2693,130 @@
       });
     }
 
+    function handleShareToggle(input, statusId, labelEn, labelZh, recipientEn, recipientZh) {
+      const status = document.getElementById(statusId);
+      const en = currentLang === 'en';
+
+      if (!input.checked) {
+        if (status) {
+          status.innerText = 'Private 🔒';
+          status.className = 'font-extrabold text-slate-500 mt-0.5 block';
+          status.setAttribute('data-i18n', 'privateTxt');
+        }
+        showToast(en ? `${labelEn} is private again` : `${labelZh}已設為私人`);
+        return;
+      }
+
+      input.checked = false;
+      openInputModal({
+        title: en ? `Share ${labelEn}` : `分享${labelZh}`,
+        message: en
+          ? `Share ${labelEn} with ${recipientEn}?`
+          : `確定與${recipientZh}分享${labelZh}？`,
+        confirmLabel: en ? 'Share' : '分享',
+        fields: [],
+        onSubmit: () => {
+          input.checked = true;
+          if (status) {
+            status.innerText = 'Shared ✓';
+            status.className = 'font-extrabold text-slate-900 mt-0.5 block';
+            status.removeAttribute('data-i18n');
+          }
+          showToast(en ? `${labelEn} shared with ${recipientEn}` : `${labelZh}已分享給${recipientZh}`);
+        }
+      });
+    }
+
+    function handleLiveShareToggle(input) {
+      const title = document.getElementById('liveShareTitle');
+      const en = currentLang === 'en';
+
+      if (!input.checked) {
+        if (title) {
+          title.innerText = en ? 'Live Health Sharing is OFF' : '即時健康共享已關閉';
+          title.removeAttribute('data-i18n');
+        }
+        showToast(en ? 'Live sharing turned off' : '即時共享已關閉');
+        return;
+      }
+
+      input.checked = false;
+      openInputModal({
+        title: en ? 'Turn On Live Sharing' : '開啟即時共享',
+        message: en
+          ? 'Allow authorized recipients to receive real-time health alerts?'
+          : '允許授權對象接收即時健康警示？',
+        confirmLabel: en ? 'Turn On' : '開啟',
+        fields: [],
+        onSubmit: () => {
+          input.checked = true;
+          if (title) {
+            title.innerText = en ? 'Live Health Sharing is ON' : '即時健康共享已開啟';
+            title.removeAttribute('data-i18n');
+          }
+          showToast(en ? 'Live sharing turned on' : '即時共享已開啟');
+        }
+      });
+    }
+
+    function handleDoctorMoodShare(input) {
+      const status = document.getElementById('docMoodStatus');
+      const en = currentLang === 'en';
+
+      if (!input.checked) {
+        if (status) {
+          status.innerText = en ? 'Private 🔒' : '私人 🔒';
+          status.className = 'font-extrabold text-slate-500 mt-0.5 block';
+          status.setAttribute('data-i18n', 'privateTxt');
+        }
+        showToast(en ? 'Mood & Notes is private again' : '情緒及筆記已設為私人');
+        return;
+      }
+
+      // Require confirmation before actually sharing with the doctor.
+      input.checked = false;
+      openInputModal({
+        title: en ? 'Share Mood & Notes' : '分享情緒及筆記',
+        message: en
+          ? 'Share your mood notes and symptoms with Dr. Wong?'
+          : '確定與黃醫生分享你的情緒筆記及症狀？',
+        confirmLabel: en ? 'Share' : '分享',
+        fields: [],
+        onSubmit: () => {
+          input.checked = true;
+          if (status) {
+            status.innerText = en ? 'Shared ✓' : '已分享 ✓';
+            status.className = 'font-extrabold text-slate-900 mt-0.5 block';
+            status.removeAttribute('data-i18n');
+          }
+          showToast(en ? 'Mood & Notes shared with Dr. Wong' : '情緒及筆記已分享給黃醫生');
+        }
+      });
+    }
+
     // ==================== FAMILY MEMBER DAILY LOG MODAL ====================
     function openFamilyDailyLog(member) {
       const en = currentLang === 'en';
-      const data = en ? {
-        dad: {
-          name: 'Dad (Kin-Kwok Chan, 80)', tag: 'Family Daily Log · Shared with you',
-          summary: "Today's Summary", score: 'Score 88/100 · Good',
-          note: 'All recorded vitals are within the normal range today.',
-          bpLbl: 'Latest BP', bp: '122 / 78 mmHg',
-          medLbl: 'Medication', med: 'Morning Taken ✓',
-          symLbl: 'Symptoms', sym: 'None reported',
-          updateLbl: 'Last updated', update: 'Today 08:15',
-          trend: '7-Day BP Trend'
-        }
-      } : {
-        dad: {
-          name: '爸爸 (陳振國, 80)', tag: '家人每日紀錄 · 已分享給你',
-          summary: '今日摘要', score: '評分 88/100 · 良好',
-          note: '今日所有血壓記錄均在正常範圍內。',
-          bpLbl: '最新血壓', bp: '122 / 78 mmHg',
-          medLbl: '服藥狀態', med: '早上已服用 ✓',
-          symLbl: '症狀', sym: '沒有不適',
-          updateLbl: '最後更新', update: '今日 08:15',
-          trend: '過去 7 日血壓趨勢'
-        }
+      const day = currentCalendarDay;
+      const snapshot = getFamilyForDate(day);
+      const d = {
+        name: en ? 'Dad (Kin-Kwok Chan, 80)' : '爸爸 (陳振國, 80)',
+        tag: en
+          ? `Family Daily Log · ${day === 18 ? 'Shared with you' : `Nov ${day}`}`
+          : `家人每日紀錄 · ${day === 18 ? '已分享給你' : `11月${day}日`}`,
+        summary: en ? (day === 18 ? "Today's Summary" : `Nov ${day} Summary`) : (day === 18 ? '今日摘要' : `11月${day}日 摘要`),
+        score: en ? snapshot.scoreEn : snapshot.scoreZh,
+        note: en ? snapshot.noteEn : snapshot.noteZh,
+        bpLbl: en ? 'Latest BP' : '最新血壓',
+        bp: snapshot.dadBp,
+        medLbl: en ? 'Medication' : '服藥狀態',
+        med: en ? snapshot.dadMedEn : snapshot.dadMedZh,
+        symLbl: en ? 'Symptoms' : '症狀',
+        sym: en ? snapshot.symEn : snapshot.symZh,
+        updateLbl: en ? 'Last updated' : '最後更新',
+        update: en ? snapshot.dadUpdateEn : snapshot.dadUpdateZh,
+        trend: en ? '7-Day BP Trend' : '過去 7 日血壓趨勢'
       };
-      const d = data[member] || data.dad;
       document.getElementById('famLogTag').innerText = d.tag;
       document.getElementById('famLogName').innerText = d.name;
       document.getElementById('famLogSummaryTitle').innerText = d.summary;
@@ -2578,7 +2948,9 @@
     }
 
     window.addEventListener('DOMContentLoaded', () => {
+      todayTaskHtml = document.getElementById('taskList').innerHTML;
       applyLanguage('en');
+      selectCalendarDate(18);
     });
   </script>
 </body>
