@@ -338,10 +338,10 @@
                   <input type="checkbox" checked onchange="showToast('Dose status updated')" class="w-4 h-4 accent-brand-600 rounded">
                   <div>
                     <span class="font-extrabold text-slate-900 block" data-i18n="medAmlodipine">Amlodipine 5mg (BP)</span>
-                    <span class="text-[11px] text-slate-600" data-i18n="medAmloSub">1 tablet · Morning after breakfast</span>
+                    <span class="text-[11px] text-slate-600" id="amloDoseSub" data-i18n="medAmloSub">1 tablet · Morning after breakfast</span>
                   </div>
                 </div>
-                <span class="text-[11px] font-extrabold text-alert-700 bg-white border border-alert-200 px-2 py-0.5 rounded-lg" data-i18n="daysLeft6">⚠️ 6d left</span>
+                <span class="text-[11px] font-extrabold text-alert-700 bg-white border border-alert-200 px-2 py-0.5 rounded-lg" id="amloDaysLeft" data-i18n="daysLeft6">⚠️ 6d left</span>
               </label>
 
               <label class="flex items-center justify-between bg-brand-50 border border-brand-100 p-3 rounded-xl cursor-pointer">
@@ -746,7 +746,7 @@
               </div>
             </div>
 
-            <button onclick="showToast(currentLang==='en' ? 'Viewing Dad\'s Daily Log (122/78 mmHg · Normal)' : '正在查看爸爸的每日紀錄 (122/78 · 正常)')" class="w-full text-xs bg-brand-50 border border-brand-200 text-brand-700 py-2.5 rounded-xl font-bold hover:bg-brand-100 transition flex items-center justify-center gap-1.5" data-i18n="viewDadLogBtn">
+            <button onclick="openFamilyDailyLog('dad')" class="w-full text-xs bg-brand-50 border border-brand-200 text-brand-700 py-2.5 rounded-xl font-bold hover:bg-brand-100 transition flex items-center justify-center gap-1.5" data-i18n="viewDadLogBtn">
               <i class="fa-solid fa-clipboard-list text-[11px]"></i> View Daily Log
             </button>
           </div>
@@ -1020,7 +1020,7 @@
             </div>
             <div class="bg-white p-3 rounded-2xl border border-brand-100 shadow-sm max-w-[85%] text-slate-900 space-y-1">
               <p class="font-bold text-brand-600 text-[11px]">CareMate AI:</p>
-              <p data-i18n="aiGreeting">Hello Ms. Chan! Tap the microphone below to speak your blood pressure, symptoms, and medication status.</p>
+              <p data-i18n="aiGreeting">Hello Ms. Chan! Tell me what you need to do or what you've finished — I'll update your to-do list automatically.</p>
             </div>
           </div>
         </div>
@@ -1147,6 +1147,91 @@
             <i class="fa-solid fa-file-pdf"></i>
             <span data-i18n="exportClinicalPdfBtn">Confirm Export</span>
           </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Family Member Daily Log Summary Modal -->
+    <div id="familyLogModal" class="absolute inset-0 bg-slate-900/75 backdrop-blur-md z-[10006] flex items-end justify-center hidden">
+      <div class="bg-brand-50 w-full h-[82%] rounded-t-3xl flex flex-col overflow-hidden shadow-2xl relative">
+        <div class="bg-slate-900 text-white px-4 py-3.5 flex justify-between items-center shrink-0">
+          <div class="flex items-center space-x-2.5">
+            <div class="w-9 h-9 rounded-xl bg-brand-600 text-white flex items-center justify-center font-extrabold text-sm">
+              <i class="fa-solid fa-clipboard-list"></i>
+            </div>
+            <div>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-brand-200 block" id="famLogTag">Family Daily Log</span>
+              <h3 class="font-extrabold text-sm leading-tight" id="famLogName">Dad (Kin-Kwok Chan, 80)</h3>
+            </div>
+          </div>
+          <button onclick="closeFamilyDailyLog()" class="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition">
+            <i class="fa-solid fa-xmark text-sm"></i>
+          </button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-4 space-y-3.5">
+          <div class="bg-white p-4 rounded-2xl border border-brand-200 custom-shadow space-y-2.5">
+            <div class="flex items-center justify-between">
+              <h4 class="text-sm font-extrabold text-slate-900" id="famLogSummaryTitle">Today's Summary</h4>
+              <span class="text-[10px] font-extrabold bg-brand-50 text-brand-700 border border-brand-200 px-2 py-0.5 rounded-full" id="famLogScore">Score 88/100 · Good</span>
+            </div>
+            <p class="text-xs text-slate-600" id="famLogNote">All recorded vitals are within the normal range today.</p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2.5 text-xs">
+            <div class="bg-white p-3 rounded-xl border border-brand-100">
+              <span class="text-[10px] text-slate-500 block" id="famLogBpLbl">Latest BP</span>
+              <p class="font-extrabold text-slate-900 mt-0.5" id="famLogBp">122 / 78 mmHg</p>
+            </div>
+            <div class="bg-white p-3 rounded-xl border border-brand-100">
+              <span class="text-[10px] text-slate-500 block" id="famLogMedLbl">Medication</span>
+              <p class="font-extrabold text-brand-700 mt-0.5" id="famLogMed">Morning Taken ✓</p>
+            </div>
+            <div class="bg-white p-3 rounded-xl border border-brand-100">
+              <span class="text-[10px] text-slate-500 block" id="famLogSymLbl">Symptoms</span>
+              <p class="font-extrabold text-slate-900 mt-0.5" id="famLogSym">None reported</p>
+            </div>
+            <div class="bg-white p-3 rounded-xl border border-brand-100">
+              <span class="text-[10px] text-slate-500 block" id="famLogUpdateLbl">Last updated</span>
+              <p class="font-extrabold text-slate-900 mt-0.5" id="famLogUpdate">Today 08:15</p>
+            </div>
+          </div>
+
+          <div class="bg-white p-4 rounded-2xl border border-brand-100 custom-shadow space-y-2">
+            <h4 class="text-xs font-extrabold text-slate-900 uppercase tracking-wider" id="famLogTrendTitle">7-Day BP Trend</h4>
+            <div class="h-24 w-full">
+              <svg class="w-full h-full overflow-visible" viewBox="0 0 300 90">
+                <line x1="20" y1="22" x2="290" y2="22" stroke="#E11D48" stroke-width="1" stroke-dasharray="3,3"/>
+                <line x1="20" y1="68" x2="290" y2="68" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3,3"/>
+                <polyline fill="none" stroke="#4F46E5" stroke-width="2.5" points="35,44 78,38 121,48 164,36 207,42 250,40 285,38"/>
+                <polyline fill="none" stroke="#0F172A" stroke-width="2" points="35,70 78,64 121,72 164,62 207,68 250,66 285,64"/>
+                <text x="28" y="86" fill="#64748b" font-size="8">11/12</text>
+                <text x="275" y="86" fill="#64748b" font-size="8">11/18</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-4 bg-white border-t border-brand-100 shrink-0">
+          <button onclick="closeFamilyDailyLog()" class="w-full py-3 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-extrabold text-xs shadow-md transition" data-i18n="closeBtn">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reusable in-app input modal (preview panels block window.prompt) -->
+    <div id="inputModal" class="absolute inset-0 bg-slate-900/70 backdrop-blur-md z-[10007] flex items-end justify-center hidden">
+      <div class="bg-white w-full rounded-t-3xl p-5 space-y-4 shadow-2xl">
+        <div class="flex justify-between items-center">
+          <h3 id="inputModalTitle" class="text-base font-extrabold text-slate-900">New Task</h3>
+          <button onclick="closeInputModal()" class="w-8 h-8 rounded-full bg-brand-50 hover:bg-brand-100 text-brand-700 flex items-center justify-center transition">
+            <i class="fa-solid fa-xmark text-sm"></i>
+          </button>
+        </div>
+        <p id="inputModalMessage" class="text-xs text-slate-600 hidden"></p>
+        <div class="space-y-3" id="inputModalFields"></div>
+        <div class="flex gap-3 pt-1">
+          <button onclick="closeInputModal()" id="inputModalCancel" class="flex-1 py-3 rounded-xl border border-brand-200 text-slate-700 font-bold text-xs hover:bg-brand-100 transition">Cancel</button>
+          <button onclick="confirmInputModal()" id="inputModalConfirm" class="flex-[2] py-3 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-extrabold text-xs shadow-md transition">Add</button>
         </div>
       </div>
     </div>
@@ -1362,7 +1447,7 @@
         navFamily: 'Family',
         aiModalTitle: 'Ask AI Voice Assistant',
         aiOnlineSub: 'Cantonese & English Voice-to-Log Ready',
-        aiGreeting: 'Hello Ms. Chan! Tap the microphone below to speak your blood pressure, symptoms, and medication status.',
+        aiGreeting: 'Hello Ms. Chan! Tell me what you need to do or what you\'ve finished — I\'ll update your to-do list automatically.',
         docPortalTag: 'Clinical Summary Portal · Dr. Wong',
         docPatientHeader: 'Patient: Ms. Chan (68F · Hypertension)',
         docTriageTitle: '7-Day AI Clinical Triage Highlights',
@@ -1518,7 +1603,7 @@
         navFamily: '共享',
         aiModalTitle: 'AI 語音助手「問康伴」',
         aiOnlineSub: '支援廣東話及英語語音自動建檔',
-        aiGreeting: '陳女士你好！點擊下方麥克風，直接說出你的血壓、症狀及服藥情況即可自動記錄。',
+        aiGreeting: '陳女士你好！說出你要做或已完成的事情，我會自動更新你的待辦清單。',
         docPortalTag: '醫生臨床摘要視圖 · 黃醫生',
         docPatientHeader: '患者：陳女士 (68歲 · 高血壓)',
         docTriageTitle: '過去 7 日 AI 臨床重點摘要',
@@ -1693,22 +1778,102 @@
       }
     }
 
-    function addNewQuickTask() {
+    let inputModalConfig = null;
+    function openInputModal(config) {
+      inputModalConfig = config;
+      const en = currentLang === 'en';
+      document.getElementById('inputModalTitle').innerText = config.title || (en ? 'Edit' : '編輯');
+      const msgEl = document.getElementById('inputModalMessage');
+      msgEl.innerText = config.message || '';
+      msgEl.classList.toggle('hidden', !config.message);
+      document.getElementById('inputModalCancel').innerText = en ? 'Cancel' : '取消';
+      document.getElementById('inputModalConfirm').innerText = config.confirmLabel || (en ? 'Confirm' : '確認');
+
+      const fieldsEl = document.getElementById('inputModalFields');
+      fieldsEl.innerHTML = (config.fields || []).map((field, index) => `
+        <label class="block">
+          <span class="text-[11px] font-bold text-slate-700 block mb-1">${escapeHtml(field.label)}</span>
+          <input id="inputModalField${index}" value="${escapeHtml(field.value || '')}" placeholder="${escapeHtml(field.placeholder || '')}"
+            onkeydown="if(event.key==='Enter') confirmInputModal()"
+            class="w-full border border-brand-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-brand-600">
+        </label>`).join('');
+
+      document.getElementById('inputModal').classList.remove('hidden');
+      setTimeout(() => {
+        const first = document.getElementById('inputModalField0');
+        if (first) first.focus();
+      }, 50);
+    }
+
+    function closeInputModal() {
+      document.getElementById('inputModal').classList.add('hidden');
+      inputModalConfig = null;
+    }
+
+    function confirmInputModal() {
+      if (!inputModalConfig) return;
+      const values = (inputModalConfig.fields || []).map((_, index) => {
+        const el = document.getElementById('inputModalField' + index);
+        return el ? el.value.trim() : '';
+      });
+      const config = inputModalConfig;
+      closeInputModal();
+      if (config.onSubmit) config.onSubmit(values);
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+    }
+
+    let taskSeq = 3;
+    function insertTaskItem(title, time) {
       const list = document.getElementById('taskList');
-      const taskTitle = currentLang === 'en' ? 'Evening Walk 20 mins (18:30)' : '晚飯後散步 20 分鐘 (18:30)';
-      const html = `
+      const id = taskSeq++;
+      const safeTitle = escapeHtml(title);
+      const safeTime = escapeHtml(time || '');
+      const note = currentLang === 'en' ? 'Added by you' : '由你新增';
+      const noteLbl = currentLang === 'en' ? 'Note:' : '備註：';
+      list.insertAdjacentHTML('beforeend', `
         <div class="task-item bg-brand-50/70 rounded-xl border border-brand-100 overflow-hidden transition">
-          <div class="p-3 flex items-center justify-between cursor-pointer hover:bg-brand-100 transition">
-            <label class="flex items-center space-x-3 cursor-pointer flex-1">
+          <div class="p-3 flex items-center justify-between cursor-pointer hover:bg-brand-100 transition" onclick="toggleTaskExpand('task-detail-${id}', 'task-arrow-${id}')">
+            <label class="flex items-center space-x-3 cursor-pointer flex-1" onclick="event.stopPropagation()">
               <input type="checkbox" onchange="toggleTask(this)" class="w-5 h-5 rounded border-brand-200 text-brand-600 accent-brand-600 cursor-pointer">
-              <span class="text-sm font-semibold text-slate-900 task-text">${taskTitle}</span>
+              <span class="text-sm font-semibold text-slate-900 task-text">${safeTitle}</span>
             </label>
-            <span class="text-xs font-bold text-brand-700 bg-white px-2.5 py-1 rounded-lg border border-brand-100">18:30</span>
+            <div class="flex items-center space-x-2">
+              ${safeTime ? `<span class="text-xs font-bold text-brand-700 bg-white px-2.5 py-1 rounded-lg border border-brand-100">${safeTime}</span>` : ''}
+              <i id="task-arrow-${id}" class="fa-solid fa-chevron-down text-slate-500 text-xs transition-transform duration-200"></i>
+            </div>
           </div>
-        </div>`;
-      list.insertAdjacentHTML('beforeend', html);
+          <div id="task-detail-${id}" class="hidden px-4 pb-3 pt-2 border-t border-brand-100 bg-white text-xs space-y-1 text-slate-700">
+            <p><span class="font-bold text-slate-900">${noteLbl}</span> ${note}</p>
+          </div>
+        </div>`);
       updateTaskCount();
-      showToast(currentLang === 'en' ? 'Added evening walk task!' : '已新增晚間散步待辦！');
+    }
+
+    function addNewQuickTask() {
+      const defTitle = currentLang === 'en' ? 'Evening Walk 20 mins' : '晚飯後散步 20 分鐘';
+      openInputModal({
+        title: currentLang === 'en' ? 'Add New Task' : '新增待辦',
+        confirmLabel: currentLang === 'en' ? 'Add Task' : '新增',
+        fields: [
+          {
+            label: currentLang === 'en' ? 'Task name' : '待辦名稱',
+            value: defTitle,
+            placeholder: currentLang === 'en' ? 'e.g. Buy medicine' : '例如：買藥'
+          },
+          {
+            label: currentLang === 'en' ? 'Time (optional)' : '時間（可留空）',
+            value: '18:30',
+            placeholder: '18:30'
+          }
+        ],
+        onSubmit: values => {
+          insertTaskItem(values[0] || defTitle, values[1]);
+          showToast(currentLang === 'en' ? 'Task added!' : '待辦已新增！');
+        }
+      });
     }
 
     function toggleMedTracking() {
@@ -1820,13 +1985,62 @@
       document.getElementById('aiChatModal').classList.add('hidden');
     }
 
+    function parseVoiceRequest(text) {
+      const raw = (text || '').trim();
+      const lower = raw.toLowerCase();
+      const isTask = /\b(task|todo|to-do|remind|reminder|schedule)\b/i.test(lower) || /待辦|提醒我|記得|新增.*(做|去)/.test(raw);
+      const isMed = /\b(refill|renew|dosage|dose|prescription)\b/i.test(lower) || /續藥|配藥|劑量|改.*藥|加.*藥|每日.*粒/.test(raw);
+      const isComplete = /\b(already\s+)?(done|finished|completed|took|taken|measured|checked)\b/i.test(lower)
+        || /做咗|做完|已完成|完成咗|食咗|量咗|已經|已服/.test(raw);
+      const intent = isComplete ? 'complete' : isTask ? 'task' : (isMed ? 'med' : 'log');
+
+      const timeMatch = raw.match(/\b(\d{1,2}[:.]\d{2})\b/);
+      const time = timeMatch ? timeMatch[1] : '';
+      let title = raw
+        .replace(/^(please\s+)?(add|create|new|remind me to|reminder to|todo:|task:)\s*/i, '')
+        .replace(/^(新增|加入|提醒我|記得|待辦[:：]?)\s*/, '')
+        .replace(/\s*(at|on)\s*\d{1,2}[:.]\d{2}.*$/i, '')
+        .trim();
+      if (!title) title = currentLang === 'en' ? 'New reminder' : '新提醒';
+
+      const qtyMatch = raw.match(/(\d+)\s*(tablets?|pills?|粒|片)/i);
+      const qty = qtyMatch ? qtyMatch[1] : '';
+      const daysMatch = raw.match(/(\d+)\s*(days?|日|天)/i);
+      let days = daysMatch ? daysMatch[1] : '';
+      if (!days && /refill|renew|續藥|配藥/i.test(raw)) days = '30';
+
+      const en = currentLang === 'en';
+      const completeTargets = [];
+      if (/medic|meds|medication|pill|tablet|食藥|服藥|藥/i.test(raw)) completeTargets.push(en ? 'Take Medication' : '服藥');
+      if (/bp|blood pressure|血壓|measure/i.test(raw)) completeTargets.push(en ? 'Measure Blood Pressure' : '量血壓');
+      if (!completeTargets.length) completeTargets.push(title);
+
+      const doseText = qty
+        ? (en ? `${qty} tablet${qty === '1' ? '' : 's'} · Morning after breakfast` : `${qty} 粒 · 早餐後服用`)
+        : (en ? 'Amlodipine 5mg (unchanged)' : 'Amlodipine 5mg（不變）');
+      const daysText = days
+        ? (Number(days) >= 30
+            ? (en ? '✅ 30d supply' : '✅ 藥量充足 (30日)')
+            : (en ? `⚠️ ${days}d left` : `⚠️ 尚餘 ${days} 日`))
+        : '';
+      return { intent, raw, time, title, qty, days, doseText, daysText, completeTargets };
+    }
+
     function simulateVoiceInputDemo() {
       const box = document.getElementById('chatMessages');
-      const spokenText = currentLang === 'en'
-        ? '🎙️ "Felt a bit dizzy this morning, BP was 138 over 86, took my BP meds."'
-        : '🎙️ 「今朝起身有少少頭暈，量咗血壓係 138 除 86，食咗降壓藥啦。」';
+      const input = document.getElementById('chatInput');
+      const typed = input.value.trim();
+      input.value = '';
+      const parsed = parseVoiceRequest(typed);
+      window.pendingVoiceData = parsed;
 
-      // 1. User Spoken Bubble
+      const en = currentLang === 'en';
+      const spokenText = typed
+        ? `🎙️ "${escapeHtml(typed)}"`
+        : (en
+            ? '🎙️ "Felt a bit dizzy this morning, BP was 138 over 86, took my BP meds."'
+            : '🎙️ 「今朝起身有少少頭暈，量咗血壓係 138 除 86，食咗降壓藥啦。」');
+
       box.insertAdjacentHTML('beforeend', `
         <div class="flex justify-end">
           <div class="bg-brand-600 text-white p-3 rounded-2xl max-w-[85%] shadow-sm font-medium leading-relaxed">
@@ -1836,13 +2050,57 @@
       `);
       box.scrollTop = box.scrollHeight;
 
-      // 2. AI Structured Medical Summary Card
+      // AI structured card — intent-aware (daily log / task / medication)
       setTimeout(() => {
-        const cardTitle = currentLang === 'en' ? 'AI Structured Medical Summary' : 'AI 結構化醫療紀錄解析';
-        const bpStatus = currentLang === 'en' ? '138 / 86 mmHg (Elevated)' : '138 / 86 mmHg (偏高)';
-        const symVal = currentLang === 'en' ? 'Dizziness' : '頭暈 (Dizziness)';
-        const medVal = currentLang === 'en' ? 'Amlodipine — Taken ✓' : 'Amlodipine — 已服用 ✓';
-        const confirmLabel = currentLang === 'en' ? 'Confirm & Save to Daily Log' : '確認並寫入今日紀錄';
+        const en = currentLang === 'en';
+        const cardTitle = parsed.intent === 'task'
+          ? (en ? 'AI Parsed To-Do' : 'AI 解析待辦')
+          : parsed.intent === 'complete'
+            ? (en ? 'AI Task Completion' : 'AI 待辦完成解析')
+            : parsed.intent === 'med'
+              ? (en ? 'AI Parsed Medication Update' : 'AI 解析藥物更新')
+              : (en ? 'AI Structured Medical Summary' : 'AI 結構化醫療紀錄解析');
+        const confirmFn = parsed.intent === 'task'
+          ? 'applyVoiceTask' : parsed.intent === 'complete' ? 'applyVoiceCompletion'
+          : parsed.intent === 'med' ? 'applyVoiceMedication' : 'applyVoiceParsedLog';
+        const confirmLabel = parsed.intent === 'task'
+          ? (en ? 'Confirm & Add to To-Do' : '確認並加入待辦')
+          : parsed.intent === 'complete'
+            ? (en ? 'Confirm & Tick To-Do' : '確認並勾選待辦')
+            : parsed.intent === 'med'
+              ? (en ? 'Confirm & Update Medication' : '確認並更新藥物紀錄')
+              : (en ? 'Confirm & Save to Daily Log' : '確認並寫入今日紀錄');
+
+        let rows;
+        if (parsed.intent === 'task') {
+          rows = [
+            [en ? 'Task' : '待辦', parsed.title, false],
+            [en ? 'Time' : '時間', parsed.time || (en ? 'Anytime' : '不限時間'), false]
+          ];
+        } else if (parsed.intent === 'complete') {
+          rows = [
+            [en ? 'Action' : '動作', en ? 'Tick off completed task(s)' : '勾選已完成待辦', false],
+            [en ? 'Matched' : '對應待辦', parsed.completeTargets.join(' + '), false]
+          ];
+        } else if (parsed.intent === 'med') {
+          rows = [
+            [en ? 'Medication' : '藥物', en ? 'Amlodipine 5mg (BP)' : 'Amlodipine 5mg (降血壓藥)', false],
+            [en ? 'New dose' : '新劑量', parsed.doseText, false]
+          ];
+          if (parsed.daysText) rows.push([en ? 'Supply' : '藥量', parsed.daysText, true]);
+        } else {
+          rows = [
+            ['BP', en ? '138 / 86 mmHg (Elevated)' : '138 / 86 mmHg (偏高)', true],
+            [en ? 'Symptom' : '症狀', en ? 'Dizziness' : '頭暈', false],
+            [en ? 'Medication' : '服藥', en ? 'Amlodipine — Taken ✓' : 'Amlodipine — 已服用 ✓', false]
+          ];
+        }
+
+        const rowsHtml = rows.map(([label, value, alert]) => `
+          <div class="flex justify-between items-center ${alert ? 'bg-alert-50 border border-alert-200' : 'bg-brand-50 border border-brand-100'} px-2.5 py-1.5 rounded-xl">
+            <span class="font-bold text-slate-700">${escapeHtml(label)}:</span>
+            <span class="font-extrabold ${alert ? 'text-alert-700' : 'text-slate-900'}">${escapeHtml(value)}</span>
+          </div>`).join('');
 
         box.insertAdjacentHTML('beforeend', `
           <div class="flex space-x-2">
@@ -1854,21 +2112,8 @@
                 <span class="font-extrabold text-brand-700 text-xs">${cardTitle}</span>
                 <span class="text-[10px] font-bold bg-brand-50 text-brand-700 px-2 py-0.5 rounded-full">Voice Parsed</span>
               </div>
-              <div class="space-y-1.5 text-xs">
-                <div class="flex justify-between items-center bg-alert-50 border border-alert-200 px-2.5 py-1.5 rounded-xl">
-                  <span class="font-bold text-slate-700">BP:</span>
-                  <span class="font-extrabold text-alert-700">${bpStatus}</span>
-                </div>
-                <div class="flex justify-between items-center bg-brand-50 border border-brand-100 px-2.5 py-1.5 rounded-xl">
-                  <span class="font-bold text-slate-700">Symptom:</span>
-                  <span class="font-extrabold text-slate-900">${symVal}</span>
-                </div>
-                <div class="flex justify-between items-center bg-brand-50 border border-brand-100 px-2.5 py-1.5 rounded-xl">
-                  <span class="font-bold text-slate-700">Medication:</span>
-                  <span class="font-extrabold text-brand-700">${medVal}</span>
-                </div>
-              </div>
-              <button onclick="applyVoiceParsedLog()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-extrabold py-2.5 rounded-xl text-xs shadow-sm transition flex items-center justify-center gap-1.5">
+              <div class="space-y-1.5 text-xs">${rowsHtml}</div>
+              <button id="voiceConfirmBtn" onclick="${confirmFn}()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-extrabold py-2.5 rounded-xl text-xs shadow-sm transition flex items-center justify-center gap-1.5">
                 <i class="fa-solid fa-check-circle"></i>
                 <span>${confirmLabel}</span>
               </button>
@@ -1876,10 +2121,29 @@
           </div>
         `);
         box.scrollTop = box.scrollHeight;
+
+        // Task-related commands are applied automatically — the to-do list updates itself.
+        if (parsed.intent === 'task' || parsed.intent === 'complete') {
+          setTimeout(() => {
+            if (parsed.intent === 'task') applyVoiceTask(true);
+            else {
+              applyVoiceCompletion(true);
+              if (/\d{2,3}\s*(over|\/)\s*\d{2,3}/i.test(parsed.raw)) applyVoiceParsedLog(true);
+            }
+            const btn = document.getElementById('voiceConfirmBtn');
+            if (btn) {
+              btn.disabled = true;
+              btn.classList.add('opacity-60', 'cursor-default');
+              btn.classList.remove('hover:bg-brand-700');
+              btn.querySelector('span').innerText = en ? 'Auto-applied ✓' : '已自動執行 ✓';
+            }
+            setTimeout(closeAiChatModal, 750);
+          }, 950);
+        }
       }, 450);
     }
 
-    function applyVoiceParsedLog() {
+    function applyVoiceParsedLog(keepOpen) {
       // Update Daily Log inputs
       document.getElementById('inputSystolic').value = 138;
       document.getElementById('inputDiastolic').value = 86;
@@ -1908,8 +2172,86 @@
       };
       selectCalendarDate(18);
 
-      closeAiChatModal();
+      if (!keepOpen) closeAiChatModal();
       showToast(currentLang === 'en' ? 'Voice log saved: 138/86 mmHg & Dizziness!' : '語音紀錄已寫入：138/86 mmHg 及頭暈！');
+    }
+
+    function applyVoiceTask(keepOpen) {
+      const d = window.pendingVoiceData || {};
+      insertTaskItem(d.title || (currentLang === 'en' ? 'New reminder' : '新提醒'), d.time || '');
+      if (!keepOpen) closeAiChatModal();
+      showToast(currentLang === 'en'
+        ? `Task added: ${d.title || 'New reminder'}`
+        : `待辦已新增：${d.title || '新提醒'}`);
+    }
+
+    function markTaskDone(item) {
+      const checkbox = item && item.querySelector('input[type="checkbox"]');
+      if (!checkbox || checkbox.checked) return false;
+      checkbox.checked = true;
+      const text = item.querySelector('.task-text');
+      if (text) text.classList.add('line-through', 'opacity-60');
+      return true;
+    }
+
+    function applyVoiceCompletion(keepOpen) {
+      const d = window.pendingVoiceData || {};
+      const raw = d.raw || '';
+      const en = currentLang === 'en';
+      const rules = [];
+      if (/medic|meds|medication|pill|tablet|食藥|服藥|藥/i.test(raw)) {
+        rules.push({ test: /medication|服藥|食藥/i, title: en ? 'Take Medication' : '服藥' });
+      }
+      if (/bp|blood pressure|血壓|measure/i.test(raw)) {
+        rules.push({ test: /blood pressure|血壓|measure/i, title: en ? 'Measure Blood Pressure' : '量血壓' });
+      }
+      if (!rules.length) {
+        rules.push({ test: new RegExp((d.title || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'), title: d.title || '' });
+      }
+
+      let updated = 0;
+      rules.forEach(rule => {
+        const items = Array.from(document.querySelectorAll('#taskList .task-item'));
+        const match = items.find(item => {
+          const text = item.querySelector('.task-text');
+          return text && rule.test.test(text.innerText);
+        });
+        if (match) {
+          if (markTaskDone(match)) updated++;
+        } else {
+          insertTaskItem(rule.title || d.title || (en ? 'Completed task' : '已完成事項'), '');
+          const added = document.querySelector('#taskList .task-item:last-child');
+          if (added && markTaskDone(added)) updated++;
+        }
+      });
+      updateTaskCount();
+      if (!keepOpen) closeAiChatModal();
+      showToast(en
+        ? `${updated || 1} to-do item(s) ticked automatically`
+        : `已自動勾選 ${updated || 1} 項待辦`);
+    }
+
+    function applyVoiceMedication() {
+      const d = window.pendingVoiceData || {};
+      const doseEl = document.getElementById('amloDoseSub');
+      const daysEl = document.getElementById('amloDaysLeft');
+      if (doseEl && d.doseText && d.qty) {
+        doseEl.innerText = d.doseText;
+        doseEl.removeAttribute('data-i18n');
+      }
+      if (daysEl && d.daysText) {
+        daysEl.innerText = d.daysText;
+        daysEl.removeAttribute('data-i18n');
+        daysEl.className = 'text-[11px] font-extrabold text-brand-700 bg-white border border-brand-200 px-2 py-0.5 rounded-lg';
+      }
+      const alertEl = document.querySelector('[data-i18n="medLowAlert"]');
+      if (alertEl && d.days && Number(d.days) >= 30) {
+        alertEl.innerText = currentLang === 'en' ? '✅ Refilled · 30 Days' : '✅ 已續藥 · 30 日';
+        alertEl.removeAttribute('data-i18n');
+        alertEl.className = 'text-xs font-extrabold text-brand-700 bg-brand-50 border border-brand-200 px-2.5 py-0.5 rounded-full';
+      }
+      closeAiChatModal();
+      showToast(currentLang === 'en' ? 'Medication record updated!' : '藥物紀錄已更新！');
     }
 
     function sendChatMessage() {
@@ -1981,26 +2323,47 @@
     }
 
     function addManualAppointment() {
+      const defName = currentLang === 'en' ? 'Dr. Wong Family Clinic — BP Review' : '黃醫生家庭診所 — 血壓覆檢';
+      openInputModal({
+        title: currentLang === 'en' ? 'Add Appointment' : '新增預約',
+        confirmLabel: currentLang === 'en' ? 'Add Appointment' : '新增',
+        fields: [
+          { label: currentLang === 'en' ? 'Appointment name' : '預約名稱', value: defName },
+          { label: currentLang === 'en' ? 'Date (e.g. Dec 24)' : '日期（例如 Dec 24）', value: 'Dec 24' },
+          {
+            label: currentLang === 'en' ? 'Time & place' : '時間及地點',
+            value: currentLang === 'en' ? '11:15 AM · Central' : '11:15 AM · 中環'
+          }
+        ],
+        onSubmit: values => insertAppointment(values[0], values[1], values[2])
+      });
+    }
+
+    function insertAppointment(name, date, meta) {
+      const defName = currentLang === 'en' ? 'Dr. Wong Family Clinic — BP Review' : '黃醫生家庭診所 — 血壓覆檢';
+      const parts = (date || '').trim().split(/\s+/);
+      const month = (parts[0] || 'DEC').toUpperCase().slice(0, 3);
+      const day = (parts[1] || '24').replace(/\D/g, '').slice(0, 2) || '24';
       const container = document.getElementById('appointmentsContainer');
       const card = `
         <div class="p-3.5 bg-brand-50 rounded-2xl border border-brand-100 flex items-center justify-between" data-appt-card>
           <div class="flex items-center space-x-3 min-w-0">
             <div class="w-12 h-12 rounded-xl bg-brand-600 text-white flex flex-col items-center justify-center font-bold text-xs shrink-0">
-              <span>DEC</span>
-              <span class="text-base leading-none">24</span>
+              <span>${escapeHtml(month)}</span>
+              <span class="text-base leading-none">${escapeHtml(day)}</span>
             </div>
             <div class="min-w-0">
-              <h4 class="text-sm font-extrabold text-slate-900 truncate">${currentLang === 'en' ? 'Dr. Wong Family Clinic — BP Review' : '黃醫生家庭診所 — 血壓覆檢'}</h4>
-              <p class="text-xs text-slate-600 mt-0.5 truncate"><i class="fa-regular fa-clock mr-1"></i>11:15 AM · Central</p>
+              <h4 class="text-sm font-extrabold text-slate-900 truncate">${escapeHtml(name.trim() || defName)}</h4>
+              <p class="text-xs text-slate-600 mt-0.5 truncate"><i class="fa-regular fa-clock mr-1"></i>${escapeHtml(meta.trim() || 'TBC')}</p>
             </div>
           </div>
           <div class="flex items-start gap-1.5 shrink-0">
-            <span class="text-xs font-bold text-brand-700 bg-white border border-brand-200 px-2.5 py-1 rounded-lg self-start">Clinic</span>
+            <span class="text-xs font-bold text-brand-700 bg-white border border-brand-200 px-2.5 py-1 rounded-lg self-start">${currentLang === 'en' ? 'Clinic' : '診所'}</span>
             ${appointmentButtons()}
           </div>
         </div>`;
       container.insertAdjacentHTML('beforeend', card);
-      showToast(currentLang === 'en' ? 'New clinic appointment added!' : '已新增診所預約！');
+      showToast(currentLang === 'en' ? 'Appointment added!' : '預約已新增！');
     }
 
     // ==================== IN-APPOINTMENT MANAGEMENT (EDIT / CANCEL) ====================
@@ -2019,31 +2382,90 @@
       const metaEl = card.querySelector('p.text-slate-600');
       const currentTitle = titleEl ? titleEl.innerText.trim() : '';
       const currentMeta = metaEl ? metaEl.innerText.trim() : '';
-      const nextTitle = window.prompt(
-        currentLang === 'en' ? 'Edit appointment name:' : '編輯預約名稱：', currentTitle);
-      if (nextTitle === null) return;
-      const nextMeta = window.prompt(
-        currentLang === 'en' ? 'Edit date / time / place:' : '編輯日期／時間／地點：', currentMeta);
-      if (nextMeta === null) return;
-      if (titleEl) titleEl.innerText = nextTitle.trim() || currentTitle;
-      if (metaEl) {
-        metaEl.innerHTML = '';
-        const icon = document.createElement('i');
-        icon.className = 'fa-regular fa-clock mr-1';
-        metaEl.appendChild(icon);
-        metaEl.appendChild(document.createTextNode(' ' + nextMeta.trim()));
-      }
-      showToast(currentLang === 'en' ? 'Appointment updated!' : '預約已更新！');
+      openInputModal({
+        title: currentLang === 'en' ? 'Edit Appointment' : '編輯預約',
+        confirmLabel: currentLang === 'en' ? 'Save' : '儲存',
+        fields: [
+          { label: currentLang === 'en' ? 'Appointment name' : '預約名稱', value: currentTitle },
+          { label: currentLang === 'en' ? 'Date / time / place' : '日期／時間／地點', value: currentMeta }
+        ],
+        onSubmit: values => {
+          if (titleEl) titleEl.innerText = values[0] || currentTitle;
+          if (metaEl) {
+            metaEl.innerHTML = '';
+            const icon = document.createElement('i');
+            icon.className = 'fa-regular fa-clock mr-1';
+            metaEl.appendChild(icon);
+            metaEl.appendChild(document.createTextNode(' ' + values[1]));
+          }
+          showToast(currentLang === 'en' ? 'Appointment updated!' : '預約已更新！');
+        }
+      });
     }
 
     function cancelAppointment(btn) {
       const card = btn.closest('[data-appt-card]');
       if (!card) return;
-      if (!window.confirm(currentLang === 'en'
-        ? 'Cancel this appointment? It will be removed from your list.'
-        : '取消這個預約？它會從你的清單中移除。')) return;
-      card.remove();
-      showToast(currentLang === 'en' ? 'Appointment cancelled.' : '預約已取消。');
+      openInputModal({
+        title: currentLang === 'en' ? 'Cancel Appointment' : '取消預約',
+        message: currentLang === 'en'
+          ? 'Remove this appointment from your list?'
+          : '確定從清單中移除這個預約？',
+        confirmLabel: currentLang === 'en' ? 'Cancel Appointment' : '確認取消',
+        fields: [],
+        onSubmit: () => {
+          card.remove();
+          showToast(currentLang === 'en' ? 'Appointment cancelled.' : '預約已取消。');
+        }
+      });
+    }
+
+    // ==================== FAMILY MEMBER DAILY LOG MODAL ====================
+    function openFamilyDailyLog(member) {
+      const en = currentLang === 'en';
+      const data = en ? {
+        dad: {
+          name: 'Dad (Kin-Kwok Chan, 80)', tag: 'Family Daily Log · Shared with you',
+          summary: "Today's Summary", score: 'Score 88/100 · Good',
+          note: 'All recorded vitals are within the normal range today.',
+          bpLbl: 'Latest BP', bp: '122 / 78 mmHg',
+          medLbl: 'Medication', med: 'Morning Taken ✓',
+          symLbl: 'Symptoms', sym: 'None reported',
+          updateLbl: 'Last updated', update: 'Today 08:15',
+          trend: '7-Day BP Trend'
+        }
+      } : {
+        dad: {
+          name: '爸爸 (陳振國, 80)', tag: '家人每日紀錄 · 已分享給你',
+          summary: '今日摘要', score: '評分 88/100 · 良好',
+          note: '今日所有血壓記錄均在正常範圍內。',
+          bpLbl: '最新血壓', bp: '122 / 78 mmHg',
+          medLbl: '服藥狀態', med: '早上已服用 ✓',
+          symLbl: '症狀', sym: '沒有不適',
+          updateLbl: '最後更新', update: '今日 08:15',
+          trend: '過去 7 日血壓趨勢'
+        }
+      };
+      const d = data[member] || data.dad;
+      document.getElementById('famLogTag').innerText = d.tag;
+      document.getElementById('famLogName').innerText = d.name;
+      document.getElementById('famLogSummaryTitle').innerText = d.summary;
+      document.getElementById('famLogScore').innerText = d.score;
+      document.getElementById('famLogNote').innerText = d.note;
+      document.getElementById('famLogBpLbl').innerText = d.bpLbl;
+      document.getElementById('famLogBp').innerText = d.bp;
+      document.getElementById('famLogMedLbl').innerText = d.medLbl;
+      document.getElementById('famLogMed').innerText = d.med;
+      document.getElementById('famLogSymLbl').innerText = d.symLbl;
+      document.getElementById('famLogSym').innerText = d.sym;
+      document.getElementById('famLogUpdateLbl').innerText = d.updateLbl;
+      document.getElementById('famLogUpdate').innerText = d.update;
+      document.getElementById('famLogTrendTitle').innerText = d.trend;
+      document.getElementById('familyLogModal').classList.remove('hidden');
+    }
+
+    function closeFamilyDailyLog() {
+      document.getElementById('familyLogModal').classList.add('hidden');
     }
 
     // ==================== DOCTOR CLINICAL AI SUMMARY MODAL ====================
