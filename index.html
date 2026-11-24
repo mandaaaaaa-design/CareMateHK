@@ -392,20 +392,20 @@
         <div id="health-view-log" class="space-y-4 pb-4">
           
           <!-- Top Banner: Sync Device / App (Xiaomi Watch / Mi Fitness) -->
-          <div class="bg-white p-4 rounded-2xl border border-brand-200 custom-shadow flex items-start justify-between gap-3">
+          <div class="bg-white p-4 rounded-2xl border border-brand-200 custom-shadow flex flex-wrap items-start justify-between gap-3">
             <div class="flex items-start space-x-3 min-w-0">
               <div class="w-10 h-10 rounded-xl bg-brand-50 border border-brand-200 text-brand-600 flex items-center justify-center shrink-0">
                 <i class="fa-solid fa-stopwatch text-lg"></i>
               </div>
               <div>
-                <div class="flex items-center gap-1.5">
+                <div class="flex flex-wrap items-center gap-1.5">
                   <h3 class="text-sm font-extrabold text-slate-900" data-i18n="syncBannerTitle">Sync Device / App</h3>
-                  <span id="wearableSyncBadge" class="hidden text-[10px] font-bold text-brand-700 bg-brand-50 border border-brand-200 px-2 py-0.5 rounded-full" data-i18n="syncedBadge">Synced ✓</span>
+                  <span id="wearableSyncBadge" class="hidden shrink-0 text-[10px] font-bold text-brand-700 bg-brand-50 border border-brand-200 px-2 py-0.5 rounded-full" data-i18n="syncedBadge">Synced ✓</span>
                 </div>
                 <p id="wearableSyncSub" class="text-[11px] text-slate-500 mt-0.5" data-i18n="syncBannerSub">Auto-fill BP, Glucose & HR from Mi Fitness</p>
               </div>
             </div>
-            <button type="button" onclick="syncFromWearable()" class="bg-brand-600 hover:bg-brand-700 text-white text-xs font-extrabold px-3 py-2.5 rounded-xl shadow-sm transition shrink-0 self-start flex items-center gap-1.5">
+            <button type="button" onclick="syncFromWearable()" class="w-full sm:w-auto justify-center bg-brand-600 hover:bg-brand-700 text-white text-xs font-extrabold px-3 py-2.5 rounded-xl shadow-sm transition flex items-center gap-1.5">
               <i class="fa-solid fa-rotate"></i>
               <span data-i18n="syncXiaomiBtn">Sync Xiaomi Watch (Mi Fitness)</span>
             </button>
@@ -1237,7 +1237,7 @@
     </div>
 
     <!-- Toast Notification -->
-    <div id="toast" class="absolute top-14 left-1/2 transform -translate-x-1/2 bg-slate-900 text-white text-xs font-semibold px-4 py-2 rounded-full shadow-lg transition-all duration-300 opacity-0 pointer-events-none z-[10010] flex items-center gap-2 whitespace-nowrap">
+    <div id="toast" class="absolute top-14 left-1/2 transform -translate-x-1/2 max-w-[calc(100%-2rem)] bg-slate-900 text-white text-xs font-semibold px-4 py-2 rounded-full shadow-lg transition-all duration-300 opacity-0 pointer-events-none z-[10010] flex items-center justify-center gap-2 text-center break-words whitespace-normal">
       <i class="fa-solid fa-circle-check text-brand-200"></i>
       <span id="toastMsg">Notification</span>
     </div>
